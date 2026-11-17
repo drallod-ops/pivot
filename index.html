@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pivot</title>
+<meta name="description" content="Entraînement quotidien aux degrés pour le piano d’accompagnement.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pivot">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F3F5F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11161B" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F2; --surface:#FFFFFF; --ink:#1B2530; --muted:#5E6B76; --line:#DCE2DD;
+  --felt:#1F6B57; --felt-ink:#FFFFFF; --felt-soft:#E1EFEA;
+  --brass:#A87618; --brass-soft:#F4E9D2; --bad:#B4433A; --bad-soft:#F7E3E0;
+  --shadow:0 1px 2px rgba(27,37,48,.06),0 8px 24px rgba(27,37,48,.07);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11161B; --surface:#1A2129; --ink:#ECEFEA; --muted:#9AA7B0; --line:#2B353F;
+    --felt:#4FB495; --felt-ink:#0C1A16; --felt-soft:#1A3A32;
+    --brass:#DDB15A; --brass-soft:#3A311C; --bad:#E58379; --bad-soft:#3F2320;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11161B; --surface:#1A2129; --ink:#ECEFEA; --muted:#9AA7B0; --line:#2B353F;
+  --felt:#4FB495; --felt-ink:#0C1A16; --felt-soft:#1A3A32;
+  --brass:#DDB15A; --brass-soft:#3A311C; --bad:#E58379; --bad-soft:#3F2320;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Bricolage Grotesque",ui-rounded,"Avenir Next","Segoe UI",system-ui,sans-serif;
+  font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+  overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0;touch-action:manipulation}
+button:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+#app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:0 18px 28px}
+.muted{color:var(--muted)}
+svg.ic{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* barre du haut */
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 10px}
+.brand{font-weight:800;font-size:28px;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
+.brand i{width:11px;height:11px;border-radius:50%;background:var(--brass);display:block}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.iconbtn:active{background:var(--line)}
+
+/* boutons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;padding:12px 18px;border-radius:16px;
+  background:var(--felt);color:var(--felt-ink);font-weight:600;font-size:18px;transition:transform .08s}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.soft{background:var(--felt-soft);color:var(--felt)}
+.btn.small{min-height:44px;font-size:16px;width:auto;padding:8px 16px;border-radius:14px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+/* accueil */
+.daily{background:var(--surface);border-radius:22px;padding:20px;box-shadow:var(--shadow);margin:6px 0 8px}
+.daily h1{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.daily p{color:var(--muted);margin:6px 0 16px}
+.days{font-size:14px;color:var(--muted);text-align:center;margin-top:12px}
+.chap{margin:34px 0 4px}
+.chap h2{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.chap p{color:var(--muted);font-size:15px}
+.path{position:relative;display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 0 6px}
+.path svg.trail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.trail path{fill:none;stroke:var(--line);stroke-width:5;stroke-linecap:round;stroke-dasharray:1 12}
+.node{position:relative;z-index:1;width:74px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.node .disc{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:21px;letter-spacing:-.02em;
+  background:var(--surface);color:var(--muted);box-shadow:inset 0 0 0 2px var(--line)}
+.node.done .disc{background:var(--felt);color:var(--felt-ink);box-shadow:0 5px 0 color-mix(in srgb,var(--felt) 70%,#000)}
+.node.open .disc{background:var(--surface);color:var(--felt);box-shadow:inset 0 0 0 3px var(--felt),0 5px 0 var(--line)}
+.node.cur .disc{animation:breathe 2.4s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:inset 0 0 0 3px var(--felt),0 5px 0 var(--line),0 0 0 9px var(--felt-soft)}}
+.node:active .disc{transform:translateY(3px)}
+.stars{display:flex;gap:2px;height:16px}
+.stars svg{width:16px;height:16px;fill:var(--line)}
+.stars svg.on{fill:var(--brass)}
+.lessonpill{position:relative;z-index:1;display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:var(--brass-soft);color:var(--ink);font-weight:600;font-size:15px}
+.lessonpill.locked{background:var(--surface);color:var(--muted);box-shadow:inset 0 0 0 1.5px var(--line)}
+.lessonpill svg{width:18px;height:18px;color:var(--brass)}
+
+/* feuille (modale) */
+#sheet{position:fixed;inset:0;z-index:20;display:none;align-items:flex-end;justify-content:center;background:rgba(10,14,18,.5)}
+#sheet.on{display:flex}
+.sheet{width:100%;max-width:480px;max-height:92%;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;
+  padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet h3{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:6px}
+.sheet .sub{color:var(--muted);margin-bottom:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--felt-soft);color:var(--felt);font-weight:600;font-size:14px}
+.defi{background:var(--brass-soft);border-radius:18px;padding:16px;margin:16px 0}
+.defi h4{margin:0 0 6px;font-size:16px;font-weight:800}
+.defi p{margin-bottom:12px}
+.check{display:flex;align-items:center;gap:10px;font-weight:600;min-height:44px}
+.check input{appearance:none;-webkit-appearance:none;width:28px;height:28px;border-radius:9px;border:2px solid var(--brass);margin:0;display:grid;place-items:center;flex:none;background:var(--surface)}
+.check input:checked{background:var(--brass)}
+.check input:checked::after{content:"";width:12px;height:7px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(-45deg) translateY(-2px)}
+
+/* session */
+.shead{display:flex;align-items:center;gap:12px;padding:14px 0 8px}
+.shead .lab{flex:1;font-weight:600;color:var(--muted);font-size:15px}
+.dots{display:flex;gap:6px}
+.dots i{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.dots i.ok{background:var(--felt)}.dots i.ko{background:var(--bad)}.dots i.now{background:var(--ink)}
+.dots i.rev{width:8px}
+.q{flex:1;display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.q .prompt{font-size:23px;font-weight:600;letter-spacing:-.015em;line-height:1.25}
+.listen{align-self:flex-start}
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{min-height:56px;padding:12px 16px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);text-align:left;font-weight:600;font-size:18px}
+.choice.sel{box-shadow:inset 0 0 0 3px var(--felt);background:var(--felt-soft)}
+.choice.ok{box-shadow:inset 0 0 0 3px var(--felt);background:var(--felt-soft)}
+.choice.bad{box-shadow:inset 0 0 0 3px var(--bad);background:var(--bad-soft)}
+.degs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.degs .choice{text-align:center;font-size:26px;font-weight:800;min-height:64px;padding:8px}
+.fb{border-radius:20px;padding:16px;background:var(--felt-soft);animation:up .2s ease-out}
+.fb.ko{background:var(--bad-soft)}
+.fb h4{margin:0 0 4px;font-size:19px;font-weight:800;color:var(--felt)}
+.fb.ko h4{color:var(--bad)}
+.fb .song{margin-top:8px;font-weight:600}
+.fb .row{margin-top:14px}
+.spacer{flex:1}
+
+/* clavier */
+.kbdwrap{user-select:none;-webkit-user-select:none}
+.kbd{position:relative;display:flex;height:176px;border-radius:6px 6px 12px 12px;background:#0d1114;padding:5px 4px 0;box-shadow:var(--shadow);touch-action:manipulation}
+.kbd.mini{height:118px}
+.wk{flex:1;position:relative;margin:0 1px;border-radius:0 0 8px 8px;background:linear-gradient(#f4f4ef,#fdfdfb 14%);box-shadow:inset 0 -5px 0 #dfe2dc}
+.bk{position:absolute;top:5px;height:58%;border-radius:0 0 6px 6px;background:linear-gradient(#2a323a,#12171c);box-shadow:inset 0 -6px 0 #000,0 2px 3px rgba(0,0,0,.4);z-index:2}
+.wk.ctx{background:#c9cdc8;box-shadow:none;opacity:.55}.bk.ctx{opacity:.45}
+.wk.sel,.wk.lit{background:#9fd8c5;box-shadow:inset 0 -5px 0 #5cae95}
+.bk.sel,.bk.lit{background:#2f9f83;box-shadow:inset 0 -6px 0 #1b6e59}
+.wk.ok{background:#8fd3bd;box-shadow:inset 0 -5px 0 #2f9f83}
+.bk.ok{background:#2f9f83;box-shadow:inset 0 -6px 0 #1b6e59}
+.wk.bad{background:#f0b1aa;box-shadow:inset 0 -5px 0 #c9665c}
+.bk.bad{background:#c9554a;box-shadow:inset 0 -6px 0 #8e342b}
+.kbd .tonic::after{content:"";position:absolute;left:50%;bottom:12px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#c2902c}
+.kbd .bk.tonic::after{bottom:10px}
+.kbd b{position:absolute;left:0;right:0;bottom:28px;text-align:center;font-size:13px;font-weight:600;color:#1B2530;pointer-events:none;letter-spacing:-.02em}
+.kbd .bk b{color:#fff;bottom:26px;font-size:11px}
+.kbdhint{font-size:14px;color:var(--muted);margin-top:8px;min-height:20px}
+
+/* leçon */
+.lesson{flex:1;display:flex;flex-direction:column;gap:16px;padding-top:6px}
+.lesson h1{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.lesson .body{font-size:18px}
+.lesson .body p+p{margin-top:10px}
+.lesson .body strong{font-weight:800}
+
+/* résultat */
+.result{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:36px;gap:6px}
+.bigstars{display:flex;gap:8px;margin-bottom:14px}
+.bigstars svg{width:58px;height:58px;fill:var(--line)}
+.bigstars svg.on{fill:var(--brass);animation:pop .45s cubic-bezier(.3,1.6,.5,1) both}
+.bigstars svg.on:nth-child(2){animation-delay:.15s}.bigstars svg.on:nth-child(3){animation-delay:.3s}
+@keyframes pop{from{transform:scale(.2);opacity:0}}
+.result h1{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.result .cheer{font-size:18px;color:var(--muted);max-width:30ch}
+.result .defi{text-align:left;width:100%}
+.result .stack{width:100%;margin-top:auto;padding-top:18px}
+
+/* paramètres */
+.set{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.set small{display:block;color:var(--muted);font-size:14px;line-height:1.35;margin-top:2px}
+.switch{appearance:none;-webkit-appearance:none;flex:none;width:52px;height:32px;border-radius:16px;background:var(--line);position:relative;margin:0;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch:checked{background:var(--felt)}.switch:checked::after{transform:translateX(20px)}
+.seg{display:flex;background:var(--bg);border-radius:12px;padding:3px;flex:none}
+.seg button{padding:8px 12px;border-radius:10px;font-size:15px;font-weight:600;color:var(--muted);min-height:38px}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+textarea{width:100%;min-height:96px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:14px/1.4 ui-monospace,Menlo,monospace;padding:12px;resize:vertical;word-break:break-all}
+.list button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;padding:10px 0;border-top:1px solid var(--line);text-align:left;font-weight:600}
+.list button[disabled]{color:var(--muted);font-weight:400}
+.note{font-size:14px;color:var(--muted);margin-top:10px}
+.steps{padding-left:22px;margin:12px 0}.steps li{margin:6px 0}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="sheet"></div>
+<script>
+'use strict';
+/* =====================================================================
+   PIVOT : entraînement aux degrés pour le piano d’accompagnement
+   Sommaire du code :
+   1. Musique (tonalités, degrés, accords, position de référence)
+   2. Chants cités  <-- à adapter au répertoire de ton église
+   3. Générateurs de questions
+   4. Paliers, défis, leçons
+   5. Son   6. Sauvegarde   7. Interface
+   ===================================================================== */
+
+/* ---------- 1. MUSIQUE ---------- */
+const LET=['Do','Ré','Mi','Fa','Sol','La','Si'], NAT=[0,2,4,5,7,9,11];
+// t = hauteur MIDI de la tonique sur le clavier affiché ; l = lettre de départ
+const KEYS={
+  C:{n:'Do',l:0,t:60}, G:{n:'Sol',l:4,t:67}, F:{n:'Fa',l:3,t:65}, D:{n:'Ré',l:1,t:62},
+  Bb:{n:'Si♭',l:6,t:58}, A:{n:'La',l:5,t:69}, Eb:{n:'Mi♭',l:2,t:63}
+};
+const MINOR=[2,3,6];
+const wrap=d=>((d-1)%7+7)%7+1;
+const ord=n=>n===1?'1er':n+'e';
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const KN=k=>KEYS[k].n+' majeur';
+
+function degName(k,d){const K=KEYS[k],i=wrap(d)-1,pc=(K.t+NAT[i])%12,li=(K.l+i)%7,diff=(pc-NAT[li]+12)%12;
+  return LET[li]+(diff===0?'':diff===1?'♯':'♭')}
+// Hauteur d’un degré sur le clavier cadré du 4 (en bas) au 3 (en haut)
+function degMidi(k,d){d=wrap(d);return KEYS[k].t+NAT[d-1]-(d>=4?12:0)}
+function bassMidi(k,d){const pc=(KEYS[k].t+NAT[wrap(d)-1])%12;let m=36+pc;while(m<41)m+=12;return m}
+function midiName(k,m){for(let d=1;d<=7;d++)if((degMidi(k,d)-m)%12===0)return degName(k,d);return '?'}
+const triad=d=>[d,wrap(d+2),wrap(d+4)];
+// Sur ce clavier d’une octave, chaque accord tombe tout seul dans la position de référence
+function chordMidis(k,d){return triad(d).map(x=>degMidi(k,x)).sort((a,b)=>a-b)}
+const posNames=(k,d)=>chordMidis(k,d).map(m=>midiName(k,m)).join('-');   // ex. Sol-Do-Mi
+const rootNames=(k,d)=>triad(d).map(x=>degName(k,x)).join('-');          // ex. Do-Mi-Sol
+const chordName=(k,d)=>degName(k,d)+(MINOR.includes(d)?'\u00a0m':'');
+const INV={1:'2e renversement',4:'position fondamentale',5:'position fondamentale',6:'position fondamentale',2:'1er renversement',3:'1er renversement',7:'2e renversement'};
+
+// Progressions : "1-5-6-4" ; "4/2" = accord de 4 sur basse 2 ; "5x" = 5 avec septième
+function tok(k,t){const [c,b]=t.split('/'),sev=c.endsWith('x'),d=parseInt(c),n=chordMidis(k,d);
+  if(sev)n.unshift(degMidi(k,wrap(d+6)));
+  return {d,sev,bass:b?+b:d,n:n.sort((a,b)=>a-b),b:bassMidi(k,b?+b:d)}}
+const progToks=(k,p)=>p.split('-').map(t=>tok(k,t));
+const progSeq=(k,p)=>progToks(k,p).map(t=>({n:t.n,b:t.b}));
+const progLabel=p=>p.split('-').map(t=>{const [c,b]=t.split('/');return c.replace('x','⁷')+(b?' sur basse '+b:'')}).join(p.includes('/')?', ':'-');
+const tokChordName=(k,t)=>{const [c,b]=t.split('/'),d=parseInt(c);return chordName(k,d)+(c.endsWith('x')?'7':'')+(b?'/'+degName(k,+b):'')};
+const progNames=(k,p)=>p.split('-').map(t=>tokChordName(k,t)).join(' – ');
+const refSeq=k=>[{n:chordMidis(k,1),b:bassMidi(k,1),d:1.3},{rest:.45}];
+const scaleSeq=(k,to=8)=>Array.from({length:to},(_,i)=>({n:[KEYS[k].t+(i===7?12:NAT[i])],d:.5}));
+const chordEv=(k,d)=>({n:chordMidis(k,d),b:bassMidi(k,d)});
+
+function moveText(k,a,b){const A=chordMidis(k,a),B=chordMidis(k,b),stay=A.filter(m=>B.includes(m)),
+  from=A.filter(m=>!B.includes(m)),to=B.filter(m=>!A.includes(m)),nm=m=>midiName(k,m);
+  if(stay.length===2)return `${nm(stay[0])} et ${nm(stay[1])} restent en place, seul ${nm(from[0])} ${to[0]>from[0]?'monte':'descend'} à ${nm(to[0])}.`;
+  if(stay.length===1)return `${nm(stay[0])} reste en place : c’est ton point d’appui. Les deux autres notes bougent d’un cran.`;
+  return 'Aucune note commune : toute la main se décale d’un cran.'}
+function posHint(k,d){const t=degName(k,1);
+  return {1:`La tonique (${t}) est au milieu : c’est le pivot de ta main.`,
+    4:`La tonique (${t}) reste en place, tout en haut de l’accord.`,
+    5:`${degName(k,5)} reste en bas, comme dans l’accord de 1.`,
+    6:'Depuis l’accord de 1 : '+moveText(k,1,6),
+    2:'Depuis l’accord de 4 : '+moveText(k,4,2),
+    3:'Depuis l’accord de 5 : '+moveText(k,5,3)}[d]}
+
+/* ---------- 2. CHANTS CITÉS ----------
+   Titre et grille en degrés uniquement, jamais de paroles.
+   Pour adapter au répertoire de ton église : change les titres ici. */
+const SONGS={
+  ag:{t:'Amazing Grace', l:'Cette suite d’accords, c’est la première phrase d’Amazing Grace.'},
+  beni:{t:'Béni soit ton nom', l:'Cette progression, c’est celle de Béni soit ton nom, du début à la fin.'},
+  combien:{t:'Combien Dieu est grand', l:'Cette progression, c’est celle du refrain de Combien Dieu est grand.'},
+  dixmille:{t:'10 000 raisons', l:'Cette progression, c’est celle du refrain de 10 000 raisons.'},
+  ldm:{t:'Lumière du monde', l:'Cette progression, c’est celle du couplet de Lumière du monde : le 2 y prend la place du 4.'},
+  ldm2:{t:'Lumière du monde', l:'On retrouve cette basse qui monte (1, 3, 4) dans le refrain de Lumière du monde.'},
+  cant:{t:'cantiques', l:'C’est la base de nombreux cantiques : Amazing Grace, À toi la gloire, Quel ami fidèle et tendre.'}
+};
+
+/* ---------- 3. GÉNÉRATEURS DE QUESTIONS ----------
+   Une question est décrite par une « spec » : ['nom', ...paramètres].
+   G[nom](...paramètres) fabrique la question. */
+function mcq(correct,wrongs){const c=shuffle([correct,...[...new Set(wrongs)].filter(w=>w!==correct).slice(0,3)]);return {choices:c,ans:c.indexOf(correct)}}
+const STATIC={
+  tri1:['Comment construit-on un accord de trois notes sur un degré ?',['En prenant une note sur deux dans la gamme','En prenant trois notes voisines','En jouant la même note à trois hauteurs'],'Une note sur deux : sur le 1, ça donne les degrés 1, 3 et 5 (Do-Mi-Sol en Do).'],
+  tri145:['Quels accords de la gamme sont majeurs ?',['Le 1, le 4 et le 5','Le 1, le 2 et le 3','Le 2, le 3 et le 6'],'1, 4 et 5 sont majeurs. 2, 3 et 6 sont mineurs.'],
+  inv1:['Dans la position de référence, l’accord de 1 (Sol-Do-Mi en Do) est en…',['2e renversement','Position fondamentale','1er renversement'],'La quinte passe en bas : c’est le 2e renversement. La tonique se retrouve au milieu, et ta main entre le 4 et le 5.'],
+  pivot:['Dans la position de référence, quelle note sert de pivot à la main droite ?',['La tonique (le 1)','Le 5','Le 7'],'Tout tourne autour de la tonique : au milieu de l’accord de 1, en haut de l’accord de 4.'],
+  lh:['Que joue la main gauche sous un accord ?',['Le degré de l’accord (sa fondamentale)','Toujours la tonique','La note la plus haute de l’accord'],'La main gauche joue le degré : sous l’accord de 4, elle joue le 4.'],
+  s_ag:['Amazing Grace s’accompagne avec trois accords. Lesquels ?',['1, 4 et 5','1, 2 et 3','1, 6 et 7'],SONGS.cant.l],
+  s_beni:['Béni soit ton nom tourne sur une seule progression. Laquelle ?',['1-5-6-4','1-4-5-1','4-5-1-1'],'1-5-6-4, en boucle, du couplet au refrain.',['C','1-5-6-4']],
+  s_combien:['Le refrain de Combien Dieu est grand suit quelle progression ?',['1-6-4-5','1-5-6-4','1-4-5-1'],'1-6-4-5, puis retour au 1.',['C','1-6-4-5-1']],
+  same4:['1-5-6-4 et 1-6-4-5 utilisent…',['Les mêmes quatre accords, dans un autre ordre','Des accords complètement différents','Uniquement des accords majeurs'],'1, 4, 5 et 6 : quatre accords qui suffisent pour presque tous les chants.'],
+  c251:['Dans 2-5-1, sur quel accord la phrase se pose-t-elle ?',['Sur le 1','Sur le 2','Sur le 5'],'Le 2 prépare, le 5 tend, le 1 pose. C’est la fin de phrase la plus courante.',['C','2-5-1']],
+  q23:['Les accords de 2 et de 3 sont…',['Mineurs','Majeurs','L’un majeur, l’autre mineur'],'2, 3 et 6 sont les trois accords mineurs de la gamme.'],
+  c_start:['Un couplet commence le plus souvent sur quel accord ?',['Le 1','Le 4','Le 5'],'Le couplet installe la tonalité : il part du 1 et y revient.'],
+  c_end:['Un couplet qui s’arrête sur le 5 donne l’impression…',['Que la suite arrive : on attend le refrain','Que le chant est terminé','Qu’on a changé de tonalité'],'Le 5 crée une attente. Le refrain vient y répondre.',['C','1-4-1-5']],
+  r_start:['Un refrain qui « s’ouvre » démarre souvent sur…',['Le 4','Le 1','Le 2'],'Démarrer sur le 4 donne un effet d’élan. '+SONGS.dixmille.l,['G','4-1-5-6']],
+  b_what:['Qu’est-ce qui distingue le plus souvent un pont ?',['Il évite de se poser sur le 1 et finit en suspens','Il reprend exactement les accords du couplet','Il se joue toujours plus doucement'],'Le pont apporte du neuf : il part d’ailleurs (souvent du 6 ou du 4) et reste en l’air.'],
+  b_end:['Pourquoi un pont se termine-t-il souvent sur le 5 ?',['Le 5 appelle le 1 : le retour du refrain répond à l’attente','Parce que le 5 est l’accord le plus grave','Pour changer de tonalité'],'Le 5 tend, le 1 du refrain résout.',['C','6-4-1-5-1']],
+  b_start:['Un pont démarre souvent sur…',['Le 6 ou le 4','Le 1','Le 3'],'Partir du 6 ou du 4 donne tout de suite une couleur différente du couplet.'],
+  ag_l2:['Dans Amazing Grace, la 2e phrase s’arrête sur le 5. Que ressent-on ?',['Une attente : le chant doit continuer','Une fin','Un changement de tonalité'],'Le 5 en milieu de chant, c’est une virgule. Le 1 final, c’est le point.',['G','1-1-5-5']],
+  ag_end:['Sur quel accord se termine Amazing Grace ?',['Le 1','Le 5','Le 4'],'Comme presque tous les chants : on finit à la maison, sur le 1.'],
+  ldm:['Le couplet de Lumière du monde suit 1-5-2. Quel accord plus attendu le 2 remplace-t-il ?',['Le 4','Le 6','Le 1'],'Le 2 partage deux notes avec le 4 : en Do, Fa et La.',['C','1-5-4-1-5-2']],
+  why_sub:['Pourquoi peut-on remplacer un accord par son voisin ?',['Parce qu’ils ont deux notes en commun','Parce qu’ils ont la même basse','Parce qu’ils sont tous les deux majeurs'],'Deux notes sur trois sont les mêmes : la mélodie tient toujours, seule la couleur change.'],
+  sub6:['Finir une phrase sur le 6 au lieu du 1 donne…',['Une fin ouverte, qui appelle une suite','Une fin plus solide','Un changement de tonalité'],'Le 6 ressemble au 1 (deux notes communes) mais ne conclut pas.',['C','4-5-1-4-5-6']],
+  sev_what:['Un accord de septième, c’est…',['Un accord de trois notes plus une quatrième, une tierce plus haut','Un accord construit sur le 7e degré','Sept notes jouées ensemble'],'On continue d’empiler une note sur deux : 1-3-5, puis 7.'],
+  sev5:['Le 5 avec septième appelle très fort quel accord ?',['Le 1','Le 4','Le 6'],'La septième du 5 (Fa, en Do) glisse naturellement vers la tierce du 1 (Mi).',['C','5-5x-1']],
+  sev_lh:['Tu jouais déjà des accords de septième au chapitre 5. Quand ?',['Quand la main gauche jouait le 2 sous l’accord de 4','Quand tu jouais l’accord de 3 complet','Jamais'],'Basse sur le 2 + accord de 4 = les quatre notes du 2 avec septième.',['C','4-4/2']],
+  sev_maj:['Le 1 et le 4 avec septième ont une couleur…',['Douce, un peu rêveuse','Tendue, qui réclame une suite','Identique à l’accord simple'],'Leur septième est majeure : pas de tension, juste de la couleur.',['C','1-3/1-4-6/4']]
+};
+const SUBPROG={ // progression d’origine, version main gauche seule, version deux mains
+  '4>2':['1-5-4','1-5-4/2','1-5-2','ldm'], '5>3':['1-5-6-4','1-5/3-6-4','1-3-6-4'],
+  '1>3':['1-1-4-5','1-1/3-4-5','1-3-4-5','ldm2'], '1>6':['4-5-1','4-5-1/6','4-5-6']
+};
+
+const G={
+  nd(k,d,mode){const nm=degName(k,d),count=Array.from({length:d},(_,i)=>`${degName(k,i+1)} ${i+1}`).join(', ');
+    const base={key:k,explain:`Le ${d} de ${KEYS[k].n}, c’est ${nm}. On compte depuis la tonique : ${count}.`,answerSeq:scaleSeq(k,d)};
+    if(mode==='kb')return {...base,kind:'kb',prompt:`En ${KN(k)}, touche le ${ord(d)} degré.`,kb:{n:1,ans:[degMidi(k,d)]}};
+    return {...base,kind:'choice',prompt:`Quel est le ${ord(d)} degré de ${KN(k)} ?`,...mcq(nm,shuffle([1,2,3,4,5,6,7].filter(x=>x!==d)).map(x=>degName(k,x)))}},
+  dn(k,d){return {key:k,kind:'deg',prompt:`En ${KN(k)}, ${degName(k,d)} est quel degré ?`,degs:[1,2,3,4,5,6,7],ansDeg:[d],
+    explain:`${degName(k,d)} est le ${ord(d)} degré de ${KEYS[k].n}.`,answerSeq:scaleSeq(k,d)}},
+  ed(k,d,set){const m=KEYS[k].t+NAT[d-1];return {key:k,kind:'deg',prompt:'Tu entends l’accord de 1, puis une note. Quel est son degré ?',degs:set,ansDeg:[d],
+    listen:[...refSeq(k),{n:[m],d:1}],explain:`C’était ${degName(k,d)}, le ${d}. ${d===1?'La note où tout se pose.':d===3?'Le 3 donne sa couleur à l’accord.':'Le 5 sonne ouvert, stable.'}`,
+    answerSeq:[...refSeq(k),{n:[KEYS[k].t],d:.6},{n:[m],d:1}]}},
+  tn(k,d,mode){const base={key:k,explain:`L’accord de ${d} part de ${degName(k,d)} et prend une note sur deux : ${rootNames(k,d)}.`,answerSeq:[chordEv(k,d)]};
+    if(mode==='kb')return {...base,kind:'kb',prompt:`En ${KN(k)}, touche les trois notes de l’accord de ${d}.`,kb:{n:3,ans:chordMidis(k,d)}};
+    return {...base,kind:'choice',prompt:`Quelles notes forment l’accord de ${d} en ${KN(k)} ?`,...mcq(rootNames(k,d),shuffle([1,2,3,4,5,6].filter(x=>x!==d)).map(x=>rootNames(k,x)))}},
+  tq(k,d){const c=['Majeur','Mineur'];return {key:k,kind:'choice',prompt:`En ${KN(k)}, l’accord de ${d} (${rootNames(k,d)}) est…`,choices:c,ans:MINOR.includes(d)?1:0,
+    explain:'Les accords de 1, 4 et 5 sont majeurs. Ceux de 2, 3 et 6 sont mineurs.',answerSeq:[chordEv(k,d)]}},
+  eq(k,d){return {key:k,kind:'choice',prompt:'Tu entends l’accord de 1, puis un autre accord. Est-il majeur ou mineur ?',choices:['Majeur','Mineur'],ans:MINOR.includes(d)?1:0,
+    listen:[...refSeq(k),chordEv(k,d)],explain:`C’était l’accord de ${d} (${chordName(k,d)}), ${MINOR.includes(d)?'mineur : une couleur plus tendre, plus intérieure':'majeur : une couleur claire, affirmée'}.`,
+    answerSeq:[...refSeq(k),chordEv(k,d)]}},
+  rp(k,d){return {key:k,kind:'kb',prompt:`En ${KN(k)}, joue l’accord de ${d} dans la position de référence.`,kb:{n:3,ans:chordMidis(k,d)},
+    explain:`L’accord de ${d} se joue ${posNames(k,d)} (${INV[d]}). ${posHint(k,d)}`,answerSeq:[chordEv(k,d)]}},
+  nc(k,d,set){return {key:k,kind:'deg',prompt:`Quel accord vois-tu, en ${KN(k)} ?`,kbShow:chordMidis(k,d),degs:set,ansDeg:[d],
+    explain:`${posNames(k,d)}, c’est l’accord de ${d} (${chordName(k,d)}) dans la position de référence.`,answerSeq:[chordEv(k,d)]}},
+  bn(k,d){return {key:k,kind:'choice',prompt:`En ${KN(k)}, ta main droite joue l’accord de ${d}. Quelle note joue la main gauche ?`,kbShow:chordMidis(k,d),
+    ...mcq(degName(k,d),shuffle([1,2,3,4,5,6,7].filter(x=>x!==d)).map(x=>degName(k,x))),
+    explain:`La main gauche joue le degré lui-même : le ${d}, donc ${degName(k,d)}.`,answerSeq:[chordEv(k,d)]}},
+  tf(k,a,b,sub){return {key:k,kind:'kb',prompt:sub?`Voici l’accord de ${a}. Remplace-le par l’accord de ${b}, sa substitution.`:`Voici l’accord de ${a}. Transforme-le en accord de ${b} en bougeant le moins de notes possible.`,
+    kb:{n:3,pre:chordMidis(k,a),ans:chordMidis(k,b)},explain:`${posNames(k,a)} devient ${posNames(k,b)}. ${moveText(k,a,b)}`,answerSeq:[chordEv(k,a),chordEv(k,b)]}},
+  mv(k,a,b){const n=chordMidis(k,a).filter(m=>!chordMidis(k,b).includes(m)).length;
+    return {key:k,kind:'choice',prompt:`En ${KN(k)}, combien de notes changent pour passer de l’accord de ${a} à l’accord de ${b} ?`,kbShow:chordMidis(k,a),
+      choices:['Une seule','Deux','Les trois'],ans:n-1,explain:`${posNames(k,a)} devient ${posNames(k,b)}. ${moveText(k,a,b)}`,answerSeq:[chordEv(k,a),chordEv(k,b)]}},
+  st(id){const [q,c,e,s]=STATIC[id],m=mcq(c[0],c.slice(1));return {kind:'choice',key:s?s[0]:null,prompt:q,...m,explain:e,answerSeq:s?progSeq(s[0],s[1]):null}},
+  pn(k,p,song){const T=p.split('-'),w=[];let guard=0;
+    while(w.length<3&&guard++<60){const v=T.slice(),i=rnd(v.length),nd=1+rnd(6);
+      if(v[i].includes('/')||v[i].includes('x')){const j=rnd(v.length);[v[i],v[j]]=[v[j],v[i]]}else v[i]=''+nd;
+      const s=progNames(k,v.join('-'));if(s!==progNames(k,p)&&!w.includes(s))w.push(s)}
+    return {key:k,kind:'choice',prompt:`Quels accords joues-tu pour ${progLabel(p)} en ${KN(k)} ?`,...mcq(progNames(k,p),w),
+      explain:`En ${KEYS[k].n} : ${T.map(t=>`${progLabel(t)} = ${tokChordName(k,t)}`).join(', ')}.`,song:song?SONGS[song].l:null,answerSeq:progSeq(k,p)}},
+  pk(k,p,i,song){const t=progToks(k,p)[i];return {key:k,kind:'kb',prompt:`Dans ${progLabel(p)} en ${KN(k)}, joue le ${ord(i+1)} accord à la main droite.`,kb:{n:t.n.length,ans:t.n},
+    explain:`Le ${ord(i+1)} accord est le ${t.d}${t.sev?' avec septième':''} : ${t.n.map(m=>midiName(k,m)).join('-')}.`,song:song?SONGS[song].l:null,answerSeq:progSeq(k,p)}},
+  pb(k,p,i){const t=progToks(k,p)[i];return {key:k,kind:'choice',prompt:`Dans ${progLabel(p)} en ${KN(k)}, quelle note joue la main gauche sur le ${ord(i+1)} accord ?`,
+    ...mcq(degName(k,t.bass),shuffle([1,2,3,4,5,6,7].filter(x=>x!==t.bass)).map(x=>degName(k,x))),
+    explain:`La basse joue le ${t.bass}, donc ${degName(k,t.bass)}.`,answerSeq:progSeq(k,p)}},
+  ec(k,d,set){return {key:k,kind:'deg',prompt:'Tu entends l’accord de 1, puis un autre accord. Lequel ?',degs:set,ansDeg:[d],listen:[...refSeq(k),chordEv(k,d)],
+    explain:`C’était l’accord de ${d} (${chordName(k,d)}). ${{1:'On reste à la maison.',4:'Le 4 s’éloigne en douceur, la tonique reste dedans.',5:'Le 5 tend vers le retour au 1.',6:'Le 6 est mineur, proche du 1 mais plus sombre.',2:'Le 2 est mineur et ressemble au 4.',3:'Le 3 est mineur, entre le 1 et le 5.'}[d]}`,
+    answerSeq:[...refSeq(k),chordEv(k,d)]}},
+  ep(k,ps,i,labels){const lab=ps.map((p,j)=>labels?labels[j]:progLabel(p));
+    return {key:k,kind:'choice',prompt:'Tu entends l’accord de 1, puis une progression. Laquelle ?',choices:lab,ans:i,listen:[...refSeq(k),...progSeq(k,ps[i])],
+      explain:`C’était ${lab[i]} : ${progNames(k,ps[i])} en ${KEYS[k].n}.`,answerSeq:[...refSeq(k),...progSeq(k,ps[i])]}},
+  ef(k,p,last){const T=progToks(k,p),t=last?T[T.length-1]:T[0];
+    return {key:k,kind:'deg',prompt:last?'Tu entends l’accord de 1, puis une progression. Sur quel degré se termine-t-elle ?':'Tu entends l’accord de 1, puis une progression. Sur quel degré démarre-t-elle ?',
+      degs:last?[1,4,5,6]:[1,4,6],ansDeg:[t.d],listen:[...refSeq(k),...progSeq(k,p)],
+      explain:`C’était ${progLabel(p)} : elle ${last?'se termine':'démarre'} sur le ${t.d}.`,answerSeq:[...refSeq(k),...progSeq(k,p)]}},
+  cm(k,a,b){const A=chordMidis(k,a),ans=A.filter(m=>chordMidis(k,b).includes(m));
+    return {key:k,kind:'kb',prompt:`En ${KN(k)}, touche les deux notes communes à l’accord de ${a} et à l’accord de ${b}.`,kb:{n:2,ans},
+      explain:`${a} = ${rootNames(k,a)}, ${b} = ${rootNames(k,b)}. Ils partagent ${ans.map(m=>midiName(k,m)).join(' et ')}.`,answerSeq:[chordEv(k,a),chordEv(k,b)]}},
+  sw(k,o,s,wr){const L=d=>`L’accord de ${d} (${rootNames(k,d)})`;
+    return {key:k,kind:'choice',prompt:`En ${KN(k)}, quel accord partage deux notes avec l’accord de ${o} (${rootNames(k,o)}) ?`,...mcq(L(s),wr.map(L)),
+      explain:`${rootNames(k,o)} et ${rootNames(k,s)} ont deux notes en commun : c’est pour ça que le ${s} peut remplacer le ${o}.`,answerSeq:[chordEv(k,o),chordEv(k,s)]}},
+  sb(k,o,s){return {key:k,kind:'deg',prompt:`Ta main droite garde l’accord de ${o} (${posNames(k,o)}). Quel degré joue la main gauche pour remplacer le ${o} par le ${s} ?`,
+    kbShow:chordMidis(k,o),degs:[1,2,3,4,5,6,7],ansDeg:[s],
+    explain:`La main gauche joue le ${s} (${degName(k,s)}), la main droite ne bouge pas. ${s===3&&o===1?'On entend l’accord de 1 avec sa tierce à la basse.':`On entend un ${s} avec septième.`}`,
+    answerSeq:progSeq(k,`${o}-${o}/${s}`)}},
+  sn(k,o,s){const c=[`Un accord de ${s} avec septième`,`L’accord de ${o} renversé, sa tierce à la basse`,`Un accord de ${s} tout simple`],inv=(o===1&&s===3);
+    return {key:k,kind:'choice',prompt:`En ${KN(k)} : basse sur le ${s} (${degName(k,s)}), main droite sur l’accord de ${o} (${posNames(k,o)}). Qu’obtiens-tu ?`,
+      ...mcq(c[inv?1:0],c),explain:inv?`${degName(k,3)} est déjà dans l’accord de 1 : c’est le même accord, posé sur sa tierce. Plus léger, il avance.`
+        :`${degName(k,s)} + ${rootNames(k,o)} = les quatre notes du ${s} avec septième.`,answerSeq:progSeq(k,`${o}-${o}/${s}`)}},
+  sv(k,b){const c=wrap(b+2);return {key:k,kind:'deg',prompt:`En ${KN(k)}, la main gauche joue le ${b} (${degName(k,b)}). Quel accord à la main droite donne un ${b} avec septième ?`,
+    degs:[1,2,3,4,5,6,7],ansDeg:[c],explain:`L’accord de ${c} (${rootNames(k,c)}) posé sur ${degName(k,b)} : ça fait ${degName(k,b)}-${rootNames(k,c)}, le ${b} avec septième.`,
+    answerSeq:progSeq(k,`${b}-${c}/${b}`)}},
+  sq(k,b){const f=x=>[x,x+2,x+4,x+6].map(y=>degName(k,y)).join('-');
+    return {key:k,kind:'choice',prompt:`Quelles sont les quatre notes de l’accord de ${b} avec septième en ${KN(k)} ?`,...mcq(f(b),shuffle([1,2,3,4,5,6].filter(x=>x!==b)).map(f)),
+      explain:`On empile une note sur deux à partir de ${degName(k,b)} : ${f(b)}.`,answerSeq:progSeq(k,b===5?'5x':`${wrap(b+2)}/${b}`)}},
+  s7(k,b){const c=wrap(b+2);return {key:k,kind:'choice',prompt:`En ${KN(k)} : basse sur le ${b}, main droite sur l’accord de ${c}. Quel accord obtiens-tu ?`,
+    ...mcq(`Le ${b} avec septième`,[`Le ${c} avec septième`,`Le ${c} renversé`,`Le ${b} tout simple`]),
+    explain:`${degName(k,b)} à la basse + ${rootNames(k,c)} = le ${b} avec septième. La main droite joue l’accord situé une tierce au-dessus de la basse.`,answerSeq:progSeq(k,`${b}-${c}/${b}`)}},
+  k7(k){const t=tok(k,'5x');return {key:k,kind:'kb',prompt:'Voici l’accord de 5. Ajoute la note qui en fait un 5 avec septième.',kb:{n:4,pre:chordMidis(k,5),ans:t.n},
+    explain:`On ajoute le 4e degré, ${degName(k,4)} : ${rootNames(k,5)}-${degName(k,4)}. Dans la position de référence, il se glisse juste sous ${degName(k,5)}.`,answerSeq:progSeq(k,'5-5x-1')}},
+  q7(k){return {key:k,kind:'choice',prompt:`En ${KN(k)}, quelle note ajoute-t-on à l’accord de 5 (${rootNames(k,5)}) pour obtenir le 5 avec septième ?`,
+    ...mcq(degName(k,4),[degName(k,3),degName(k,6),degName(k,1)]),explain:`Une tierce au-dessus de ${degName(k,2)} : ${degName(k,4)}, le 4e degré.`,answerSeq:progSeq(k,'5-5x-1')}},
+  e7(k,d,sev){const p=sev?(d===5?'5x':`${wrap(d+2)}/${d}`):''+d;
+    return {key:k,kind:'choice',prompt:'Tu entends l’accord de 1, puis un autre accord. A-t-il trois notes ou une septième en plus ?',choices:['Trois notes','Avec septième'],ans:sev?1:0,
+      listen:[...refSeq(k),...progSeq(k,p)],explain:`C’était le ${d} ${sev?'avec septième : une note de plus, une couleur plus riche':'tout simple, à trois notes'}. Compare les deux.`,
+      answerSeq:[...progSeq(k,''+d),...progSeq(k,d===5?'5x':`${wrap(d+2)}/${d}`)]}}
+};
+const build=spec=>{const q=G[spec[0]](...spec.slice(1));q.spec=spec;return q};
+
+/* ---------- 4. PALIERS, DÉFIS, LEÇONS ---------- */
+const each=(a,f)=>a.flatMap(f);
+const degPool=(k,ds)=>each(ds,d=>[['nd',k,d,'kb'],['nd',k,d,'mcq'],['dn',k,d]]);
+const posPool=(k,ds)=>each(ds,d=>[['rp',k,d],['nc',k,d,ds],['bn',k,d]]);
+const progPool=(k,p,song)=>[['pn',k,p,song],...p.split('-').map((_,i)=>['pk',k,p,i,song]),['pb',k,p,1+rnd(p.split('-').length-1)]];
+const keyIntro=k=>[...degPool(k,[2,3,4,5,6,7]),...posPool(k,[1,4,5,6])];
+const subPool=(k,o,s,stage)=>{const [p0,p1,p2,song]=SUBPROG[o+'>'+s];
+  return stage===1?[['sb',k,o,s],['sn',k,o,s],['cm',k,o,s],['ep',k,[p0,p1],0,[progLabel(p0),`${progLabel(p0)}, avec la basse sur ${s}`]],['ep',k,[p0,p1],1,[progLabel(p0),`${progLabel(p0)}, avec la basse sur ${s}`]],['bn',k,s]]
+    :[['tf',k,o,s,1],['rp',k,s],['pn',k,p2,song],['pk',k,p2,p2.split('-').indexOf(''+s),song],['ep',k,[p0,p2],0],['ep',k,[p0,p2],1]]};
+const sevPool=(k,bs)=>each(bs,b=>[['sv',k,b],['sq',k,b],['s7',k,b]]);
+const P3=['1-4-5-1','1-5-6-4','1-6-4-5'];
+const SECT=['1-5-6-4','1-4-1-5','4-1-5-6','4-5-6-5','6-4-1-5','6-5-4-5'];
+
+const CHAPTERS=[null,
+  ['Les degrés des notes','Chaque note de la gamme a un numéro.'],
+  ['Les accords et la position de référence','1, 4, 5 et 6 : la base de presque tous les chants.'],
+  ['Les progressions','Enchaîner les accords, les reconnaître à l’oreille.'],
+  ['La structure des chants','Couplet, refrain, pont : chacun sa couleur.'],
+  ['Les substitutions','Remplacer un accord par son voisin.'],
+  ['Les accords de septième','Une quatrième note pour enrichir la couleur.']];
+
+// id, titre, ce qu’on travaille, tonalité affichée, leçon avant, réserve de questions, défi [texte, tonalité, modèle]
+const PALIERS=[
+ {id:'1.1',t:'Degrés 1, 3 et 5',k:'Do',les:'L1',pool:()=>degPool('C',[1,3,5]),
+  defi:['Joue Do, Mi, Sol l’un après l’autre en disant « 1, 3, 5 » à voix haute, puis dans le désordre.','C','notes:1-3-5-3-1']},
+ {id:'1.2',t:'Degrés 2, 4, 6 et 7',k:'Do',pool:()=>degPool('C',[2,4,6,7]),
+  defi:['Joue la gamme de Do majeur en disant le numéro de chaque degré à voix haute, en montant puis en descendant.','C','scale']},
+ {id:'1.3',t:'Les sept degrés, et une première écoute',k:'Do',pool:()=>[...each([1,2,3,4,5,6,7],d=>[['nd','C',d,'kb'],['dn','C',d]]),...each([1,3,5],d=>[['ed','C',d,[1,3,5]],['ed','C',d,[1,3,5]]])],
+  defi:['Joue une touche blanche au hasard et dis son degré en Do, sans compter depuis le début. Fais-le dix fois.','C','scale']},
+ {id:'1.4',t:'Les degrés en Sol',k:'Sol',pool:()=>[...degPool('G',[1,2,3,4,5,6,7]),...each([1,3,5],d=>[['ed','G',d,[1,3,5]]])],
+  defi:['Joue la gamme de Sol majeur en disant le numéro de chaque degré à voix haute.','G','scale']},
+ {id:'1.5',t:'Les degrés en Fa',k:'Fa',pool:()=>[...degPool('F',[1,2,3,4,5,6,7]),...each([1,3,5],d=>[['ed','F',d,[1,3,5]]])],
+  defi:['Joue la gamme de Fa majeur en disant les degrés, puis va directement au 1, au 4 et au 5.','F','scale']},
+
+ {id:'2.1',t:'Les accords de 1, 4 et 5',k:'Do',les:'L2',pool:()=>[...each([1,4,5],d=>[['tn','C',d,'kb'],['tn','C',d,'mcq'],['tq','C',d]]),['st','tri1'],['st','tri145'],['st','lh']],
+  defi:['Main droite : joue les accords de 1, 4 et 5 en Do en disant leur numéro à voix haute.','C','1-4-5-1']},
+ {id:'2.2',t:'L’accord de 6, majeur ou mineur',k:'Do',pool:()=>[['tn','C',6,'kb'],['tn','C',6,'mcq'],...each([1,4,5,6],d=>[['tq','C',d]]),...each([4,5,6],d=>[['eq','C',d],['eq','C',d]])],
+  defi:['Joue l’accord de 1 puis l’accord de 6 en Do, plusieurs fois, et écoute la différence entre majeur et mineur.','C','1-6-1-6']},
+ {id:'2.3',t:'Position de référence : 1, 4 et 5',k:'Do',les:'L2b',pool:()=>[...each([1,4,5],d=>[['rp','C',d],['nc','C',d,[1,4,5]]]),['st','inv1'],['st','pivot'],['tf','C',1,4],['tf','C',1,5]],
+  defi:['Pose Sol-Do-Mi, passe au 4 (Fa-La-Do) puis au 5 (Sol-Si-Ré) sans regarder ta main. Reviens au 1 à chaque fois.','C','1-4-1-5-1']},
+ {id:'2.4',t:'Le 6, et les doigts qui restent en place',k:'Do',pool:()=>[['rp','C',6],...each([1,4,5,6],d=>[['nc','C',d,[1,4,5,6]]]),['tf','C',1,6],['tf','C',6,1],['tf','C',1,4],['tf','C',1,5],['mv','C',1,6],['mv','C',4,5],['mv','C',1,4]],
+  defi:['Alterne l’accord de 1 et l’accord de 6 dans la position de référence : un seul doigt doit bouger.','C','1-6-1-6']},
+ {id:'2.5',t:'Les deux mains : accord et basse',k:'Do',pool:()=>[...posPool('C',[1,4,5,6]),['st','lh']],
+  defi:['Enchaîne 1, 4, 5, 6 à deux mains en Do : la main gauche joue le degré, la main droite l’accord.','C','1-4-5-6']},
+ {id:'2.6',t:'La position de référence en Sol',k:'Sol',pool:()=>[...posPool('G',[1,4,5,6]),['tf','G',1,6],['tf','G',1,4],['tf','G',1,5]],
+  defi:['Trouve la position de référence en Sol (Ré-Sol-Si) et enchaîne 1-4-5-1 à deux mains.','G','1-4-5-1']},
+ {id:'2.7',t:'La position de référence en Fa',k:'Fa',pool:()=>[...posPool('F',[1,4,5,6]),['tf','F',1,6],['tf','F',1,4],['tf','F',1,5]],
+  defi:['Trouve la position de référence en Fa (Do-Fa-La) et enchaîne 1-4-5-1 à deux mains.','F','1-4-5-1']},
+ {id:'2.8',t:'Nouvelle tonalité : Ré',k:'Ré',pool:()=>keyIntro('D'),
+  defi:['Joue la gamme de Ré majeur en disant les degrés, puis pose les accords de 1, 4, 5 et 6.','D','1-4-5-6']},
+ {id:'2.9',t:'Nouvelle tonalité : Si♭',k:'Si♭',pool:()=>keyIntro('Bb'),
+  defi:['Joue la gamme de Si♭ majeur en disant les degrés, puis pose les accords de 1, 4, 5 et 6.','Bb','1-4-5-6']},
+
+ {id:'3.1',t:'La progression 1-4-5-1',k:'Do',les:'L3',pool:()=>[...progPool('C','1-4-5-1'),['st','s_ag'],['pn','C','1-1-4-1','ag'],['pb','C','1-4-5-1',2]],
+  defi:['Accompagne Amazing Grace en Do avec seulement les accords de 1, 4 et 5.','C','1-1-4-1-1-1-5-5']},
+ {id:'3.2',t:'Reconnaître 1, 4 et 5 à l’oreille',k:'Do',pool:()=>[...each([1,4,5],d=>[['ec','C',d,[1,4,5]],['ec','C',d,[1,4,5]]]),...[0,1,2].map(i=>['ep','C',['1-4-5-1','1-5-4-1','1-4-1-5'],i])],
+  defi:['Enchaîne 1-4-5-1 en Do avec la main gauche seule, puis essaie en Fa.','C','bass:1-4-5-1']},
+ {id:'3.3',t:'La progression 1-5-6-4',k:'Do',pool:()=>[...progPool('C','1-5-6-4','beni'),['st','s_beni'],['ec','C',6,[1,4,5,6]]],
+  defi:['Fais tourner 1-5-6-4 en Do, quatre temps par accord, sans t’arrêter pendant deux minutes.','C','1-5-6-4']},
+ {id:'3.4',t:'La progression 1-6-4-5',k:'Do',pool:()=>[...progPool('C','1-6-4-5','combien'),['st','s_combien'],['st','same4']],
+  defi:['Fais tourner 1-6-4-5 en Do, puis enchaîne sur 1-5-6-4 : ce sont les mêmes accords, dans un autre ordre.','C','1-6-4-5-1-5-6-4']},
+ {id:'3.5',t:'Quelle progression entends-tu ?',k:'Do',pool:()=>[...[0,1,2].flatMap(i=>[['ep','C',P3,i],['ep','C',P3,i]]),...each([1,4,5,6],d=>[['ec','C',d,[1,4,5,6]]])],
+  defi:['Joue une des trois progressions en la chantonnant, puis une autre : repère à l’oreille ce qui change.','C','1-5-6-4']},
+ {id:'3.6',t:'Les trois progressions en Sol et en Fa',k:'Sol, Fa',pool:()=>each(['G','F'],k=>[...each(P3,p=>[['pn',k,p],['pk',k,p,1+rnd(3)]]),['ep',k,P3,rnd(3)],['pb',k,P3[rnd(3)],2]]),
+  defi:['Joue 1-5-6-4 en Sol, puis en Fa, sans partition.','G','1-5-6-4']},
+ {id:'3.7',t:'Les accords de 2 et de 3',k:'Do',les:'L3b',pool:()=>[...each([2,3],d=>[['tn','C',d,'mcq'],['rp','C',d],['tq','C',d],['nc','C',d,[1,2,3,4,5,6]]]),['tf','C',4,2],['tf','C',5,3],['tf','C',1,3],['mv','C',4,2],['mv','C',5,3],['st','q23']],
+  defi:['Passe de l’accord de 4 à l’accord de 2 dans la position de référence, puis du 5 au 3 : un seul doigt doit bouger.','C','4-2-5-3']},
+ {id:'3.8',t:'La progression 2-5-1',k:'Do, Sol, Fa',pool:()=>[...progPool('C','2-5-1'),['st','c251'],...[0,1,2].map(i=>['ep','C',['2-5-1','4-5-1','6-5-1'],i]),...each(['G','F'],k=>[['pn',k,'2-5-1'],['rp',k,2],['rp',k,3]])],
+  defi:['Joue 2-5-1 en Do, puis en Sol et en Fa. C’est la fin de phrase la plus courante.','C','2-5-1']},
+ {id:'3.9',t:'Nouvelle tonalité : La',k:'La',pool:()=>[...keyIntro('A'),['pn','A','1-5-6-4'],['pn','A','1-4-5-1']],
+  defi:['En La majeur, joue la gamme en disant les degrés, puis fais tourner 1-5-6-4.','A','1-5-6-4']},
+ {id:'3.10',t:'Nouvelle tonalité : Mi♭',k:'Mi♭',pool:()=>[...keyIntro('Eb'),['pn','Eb','1-5-6-4'],['pn','Eb','1-4-5-1']],
+  defi:['En Mi♭ majeur, joue la gamme en disant les degrés, puis enchaîne 1-4-5-1.','Eb','1-4-5-1']},
+
+ {id:'4.1',t:'Le couplet',k:'Do',les:'L4',pool:()=>[['st','c_start'],['st','c_end'],['pn','C','1-5-6-4','beni'],['pn','C','1-4-1-5'],['ef','C','1-5-6-4'],['ef','C','1-4-1-5',1],['ef','C','1-5-6-4',1],['pk','C','1-4-1-5',3]],
+  defi:['Choisis un chant que tu connais et essaie son couplet en 1-5-6-4, puis en 1-4-1-5 : lequel colle le mieux ?','C','1-5-6-4']},
+ {id:'4.2',t:'Le refrain',k:'Sol',pool:()=>[['st','r_start'],...progPool('G','4-1-5-6','dixmille'),['ef','G','4-1-5-6'],['ef','G','1-5-6-4'],['ef','G','4-5-6-5']],
+  defi:['En Sol, joue 4-1-5-6 deux fois de suite : c’est le refrain de 10 000 raisons.','G','4-1-5-6-4-1-5-5']},
+ {id:'4.3',t:'Le pont',k:'Do',pool:()=>[['st','b_what'],['st','b_end'],['st','b_start'],['pn','C','6-4-1-5'],['ef','C','6-4-1-5'],['ef','C','6-4-1-5',1],['ef','C','4-5-6-5'],['ef','C','6-5-4-5',1],['pk','C','6-4-1-5',0]],
+  defi:['Joue un pont 6-4-1-5 en Do en montant peu à peu en intensité, puis retombe sur le 1 du refrain.','C','6-4-1-5-1']},
+ {id:'4.4',t:'Couplet, refrain ou pont ?',k:'Do, Sol, Fa',pool:()=>[...each(['C','G','F'],k=>each(SECT,p=>[['ef',k,p,rnd(2)]])),['st','c_start'],['st','r_start'],['st','b_what'],['st','b_end']],
+  defi:['Enchaîne un couplet (1-5-6-4) et un refrain (4-1-5-6) en Do, sans t’arrêter entre les deux.','C','1-5-6-4-4-1-5-6']},
+ {id:'4.5',t:'Un cantique en entier',k:'Sol',pool:()=>[['pn','G','1-1-4-1','ag'],['pk','G','1-1-4-1',2,'ag'],['pb','G','1-1-4-1',2],['st','ag_l2'],['st','ag_end'],['pn','G','1-5-1'],...posPool('G',[1,4,5])],
+  defi:['Accompagne Amazing Grace en entier en Sol : main gauche sur les degrés, main droite sur les accords.','G','1-1-4-1-1-1-5-5']},
+ {id:'4.6',t:'Un chant de louange en entier',k:'Ré',pool:()=>[...progPool('D','1-5-6-4','beni'),['st','s_beni'],['ep','D',P3,1],...posPool('D',[1,4,5,6])],
+  defi:['Accompagne Béni soit ton nom en Ré : 1-5-6-4 en boucle, du début à la fin.','D','1-5-6-4']},
+ {id:'4.7',t:'Bilan : toutes les tonalités',k:'Toutes',pool:()=>each(Object.keys(KEYS),k=>[['pn',k,P3[rnd(3)]],['rp',k,[1,4,5,6][rnd(4)]],['ef',k,SECT[rnd(6)],rnd(2)],['pn',k,'4-1-5-6']]),
+  defi:['Prends un chant de dimanche dernier, écris sa grille en degrés, puis joue-la dans une autre tonalité.',null,null]},
+
+ {id:'5.1',t:'Les notes communes',k:'Do',les:'L5',pool:()=>[['cm','C',4,2],['cm','C',5,3],['cm','C',1,3],['cm','C',1,6],['sw','C',4,2,[5,3]],['sw','C',5,3,[4,2]],['sw','C',1,6,[5,2]],['sw','C',1,3,[4,2]],['st','why_sub']],
+  defi:['Joue l’accord de 4 puis l’accord de 2 en Do en gardant enfoncées les deux notes communes. Fais pareil avec 5 et 3, puis 1 et 6.','C','4-2-5-3-1-6']},
+ {id:'5.2',t:'Le 2 à la place du 4 : main gauche seule',k:'Do',pool:()=>[...subPool('C',4,2,1),['st','ldm']],
+  defi:['Main droite sur l’accord de 4, main gauche sur le 4 puis sur le 2 : écoute la couleur changer.','C','4-4/2-4-4/2']},
+ {id:'5.3',t:'Le 2 à la place du 4 : les deux mains',k:'Do',pool:()=>[...subPool('C',4,2,2),['st','ldm']],
+  defi:['Joue 1-5-4, puis 1-5-2 : c’est le couplet de Lumière du monde.','C','1-5-4-1-5-2']},
+ {id:'5.4',t:'Le 3 à la place du 5 : main gauche seule',k:'Do',pool:()=>subPool('C',5,3,1),
+  defi:['Main droite sur l’accord de 5, main gauche sur le 5 puis sur le 3.','C','5-5/3-5-5/3']},
+ {id:'5.5',t:'Le 3 à la place du 5 : les deux mains',k:'Do',pool:()=>subPool('C',5,3,2),
+  defi:['Joue 1-5-6-4, puis 1-3-6-4 : le 3 a pris la place du 5.','C','1-5-6-4-1-3-6-4']},
+ {id:'5.6',t:'Le 3 à la place du 1 : main gauche seule',k:'Do',pool:()=>subPool('C',1,3,1),
+  defi:['Main droite sur l’accord de 1, main gauche qui monte 1, 3, 4 : joue 1, 1 sur basse 3, puis 4.','C','1-1/3-4']},
+ {id:'5.7',t:'Le 3 à la place du 1 : les deux mains',k:'Do',pool:()=>subPool('C',1,3,2),
+  defi:['Joue 1-1-4-5, puis 1-3-4-5 en Do.','C','1-1-4-5-1-3-4-5']},
+ {id:'5.8',t:'Le 6 à la place du 1',k:'Do',pool:()=>[...subPool('C',1,6,1),...subPool('C',1,6,2),['st','sub6']],
+  defi:['Termine une phrase par 4-5-1, puis par 4-5-6 : la fin reste ouverte, comme une question.','C','4-5-1-4-5-6']},
+ {id:'5.9',t:'Toutes les substitutions en Sol',k:'Sol',pool:()=>each([[4,2],[5,3],[1,3],[1,6]],([o,s])=>[['sb','G',o,s],['tf','G',o,s,1],['cm','G',o,s],['sn','G',o,s]]),
+  defi:['En Sol, reprends 1-5-6-4 et remplace un accord par son voisin : 2 pour 4, 3 pour 5 ou 6 pour 1.','G','1-5-6-4-1-3-6-2']},
+ {id:'5.10',t:'Toutes les substitutions en Fa',k:'Fa',pool:()=>each([[4,2],[5,3],[1,3],[1,6]],([o,s])=>[['sb','F',o,s],['tf','F',o,s,1],['cm','F',o,s],['sn','F',o,s]]),
+  defi:['En Fa, reprends 1-4-5-1 et remplace le 4 par le 2, puis le dernier 1 par le 6.','F','1-4-5-1-1-2-5-6']},
+ {id:'5.11',t:'Original ou substitution ? À l’oreille',k:'Do, Sol, Fa',pool:()=>each(['C','G','F'],k=>each(Object.values(SUBPROG),([p0,p1,p2])=>[['ep',k,[p0,p2],rnd(2)]])),
+  defi:['Prends un chant en 1-4-5 que tu connais et glisse un 2 à la place d’un 4, une seule fois. Garde ce qui te plaît.','C','1-4-5-1-1-2-5-1']},
+
+ {id:'6.1',t:'Tu en jouais déjà : 2, 3 et 6 avec septième',k:'Do',les:'L6',pool:()=>[...sevPool('C',[2,3,6]),['st','sev_what'],['st','sev_lh']],
+  defi:['Main droite sur l’accord de 4, main gauche sur le 2 : c’est un 2 avec septième. Trouve de la même façon le 3 et le 6 avec septième.','C','4/2-5/3-1/6']},
+ {id:'6.2',t:'Le 5 avec septième',k:'Do',pool:()=>[['k7','C'],['q7','C'],['st','sev5'],['sq','C',5],['e7','C',5,true],['e7','C',5,false],['pk','C','5-5x-1',1]],
+  defi:['Joue 5, puis 5 avec septième (ajoute Fa), puis 1 : sens comme le Fa tire vers le Mi.','C','5-5x-1']},
+ {id:'6.3',t:'Le 1 et le 4 avec septième',k:'Do',pool:()=>[...sevPool('C',[1,4]),['st','sev_maj']],
+  defi:['Main droite sur l’accord de 3, main gauche sur le 1 : écoute la douceur du 1 avec septième. Puis accord de 6 sur basse 4.','C','1-3/1-4-6/4']},
+ {id:'6.4',t:'Trois notes ou septième ? À l’oreille',k:'Do',pool:()=>each([2,4,5,6],d=>[['e7','C',d,true],['e7','C',d,false]]),
+  defi:['Joue chaque accord de Do d’abord simple, puis avec sa septième, et repère ceux que tu préfères.','C','4-6/4-2-4/2-5-5x-1']},
+ {id:'6.5',t:'Les septièmes en Sol et en Fa',k:'Sol, Fa',pool:()=>each(['G','F'],k=>[...sevPool(k,[2,6]),['k7',k],['q7',k],['sv',k,1],['sv',k,4]]),
+  defi:['En Sol puis en Fa, joue 2 avec septième, 5 avec septième, puis 1.','G','4/2-5x-1']},
+ {id:'6.6',t:'2-5-1 avec septièmes',k:'Do, Sol, Fa, Ré',pool:()=>each(['C','G','F','D'],k=>[['sv',k,2],['k7',k],['pk',k,'4/2-5x-1',1],['ep',k,['2-5-1','4/2-5x-1'],rnd(2),['2-5-1 tout simple','2-5-1 avec septièmes']]]),
+  defi:['Termine Amazing Grace par 2-5-1 avec septièmes au lieu de 5-1, dans la tonalité de ton choix.','C','4/2-5x-1']},
+ {id:'6.7',t:'Bilan final',k:'Toutes',pool:()=>each(Object.keys(KEYS),k=>[['sv',k,[2,3,6,1,4][rnd(5)]],['k7',k],['rp',k,1+rnd(6)],['pn',k,P3[rnd(3)]],['q7',k]]),
+  defi:['Choisis ton chant préféré et accompagne-le en entier avec tout ce que tu as appris : la position de référence, une substitution, une septième.',null,null]}
+];
+PALIERS.forEach(p=>p.ch=+p.id.split('.')[0]);
+
+const CM=d=>chordMidis('C',d);
+// Chaque écran : titre, texte, clavier (touches allumées), exemple sonore [libellé, tonalité, modèle]
+const LESSONS={
+ L1:{t:'Les degrés',s:[
+  ['Chaque note a un numéro','<p>Dans une gamme majeure, on numérote les notes de 1 à 7 en partant de la première.</p><p>En Do majeur : <strong>Do 1, Ré 2, Mi 3, Fa 4, Sol 5, La 6, Si 7</strong>.</p>',null,['Écouter la gamme','C','scale']],
+  ['Pourquoi des numéros ?','<p>Un chant garde les mêmes degrés dans toutes les tonalités.</p><p>Si tu penses « 1, 4, 5 » plutôt que « Do, Fa, Sol », tu sais déjà l’accompagner en Sol ou en Fa. C’est ce qui te permettra de suivre l’assemblée, quelle que soit la tonalité choisie.</p>',null,null],
+  ['Le 1, ta maison','<p>Le 1 s’appelle la <strong>tonique</strong> : c’est la note où tout se pose.</p><p>Sur le clavier de Pivot, elle porte un point doré. Le clavier montre une seule octave, du 4 (en bas) au 3 (en haut) : la tonique est au centre de ta main.</p>',{deg:1},['Écouter 1, 3, 5','C','notes:1-3-5']]]},
+ L2:{t:'Les accords',s:[
+  ['Un accord : une note sur deux','<p>Pars d’un degré, saute une note, prends la suivante, et recommence.</p><p>Sur le 1 : <strong>Do-Mi-Sol</strong>. Sur le 4 : <strong>Fa-La-Do</strong>. Sur le 5 : <strong>Sol-Si-Ré</strong>.</p>',{m:CM(1)},['Écouter 1, 4, 5','C','1-4-5']],
+  ['1, 4, 5 et 6 : presque tout','<p>Avec ces quatre accords, tu peux accompagner la grande majorité des chants d’assemblée.</p><p>Le 1, le 4 et le 5 sont <strong>majeurs</strong>. Le 6 (La-Do-Mi) est <strong>mineur</strong> : plus tendre, plus intérieur.</p>',{m:CM(6)},['Écouter 1 puis 6','C','1-6']],
+  ['Et la main gauche ?','<p>Elle joue simplement le degré, à la basse : sous l’accord de 4, elle joue le 4.</p><p>Dans Pivot, le clavier montre la main droite. Pour la main gauche, tu répondras avec des boutons de degré.</p>',null,['Écouter 1-4-5-1','C','1-4-5-1']]]},
+ L2b:{t:'La position de référence',s:[
+  ['Bouger le moins possible','<p>Plutôt que de sauter d’un accord à l’autre, on range les notes pour que la main reste autour de la tonique.</p><p>L’accord de 1 se joue <strong>Sol-Do-Mi</strong> : la tonique au milieu, sous ton doigt du milieu.</p>',{m:CM(1)},['Écouter','C','1']],
+  ['Pourquoi le 1 est retourné','<p>Do-Mi-Sol devient Sol-Do-Mi : le Sol passe en bas. On appelle ça le 2e renversement.</p><p>Ta main se retrouve pile entre le 4 et le 5. La tonique devient un <strong>pivot</strong>.</p>',{m:CM(1)},null],
+  ['Le 4 et le 5, juste à côté','<p><strong>4 : Fa-La-Do.</strong> La tonique reste en place, en haut de l’accord.</p><p><strong>5 : Sol-Si-Ré.</strong> Le Sol reste en place, en bas.</p><p>À chaque fois, une note ne bouge pas.</p>',{m:CM(4)},['Écouter 1-4-1-5-1','C','1-4-1-5-1']],
+  ['Le 6 : un seul doigt','<p><strong>6 : La-Do-Mi.</strong> Depuis l’accord de 1, seul le Sol monte à La.</p><p>Dans les exercices, le clavier te montrera les notes à garder et celle à bouger.</p>',{m:CM(6)},['Écouter 1-6','C','1-6-1-6']]]},
+ L3:{t:'Les progressions',s:[
+  ['Une progression','<p>C’est une suite d’accords qui revient. On la note en degrés.</p><p><strong>1-4-5-1</strong> est la base de nombreux cantiques : Amazing Grace, À toi la gloire, Quel ami fidèle et tendre.</p>',null,['Écouter 1-4-5-1','C','1-4-5-1']],
+  ['1-5-6-4','<p>La progression la plus courante des chants de louange d’aujourd’hui.</p><p>C’est celle de Béni soit ton nom, du début à la fin.</p>',null,['Écouter 1-5-6-4','C','1-5-6-4']],
+  ['1-6-4-5','<p>Les mêmes quatre accords, dans un autre ordre.</p><p>C’est celle du refrain de Combien Dieu est grand.</p>',null,['Écouter 1-6-4-5','C','1-6-4-5']],
+  ['À l’oreille','<p>Dans les questions d’écoute, tu entends toujours l’accord de 1 d’abord. C’est ton repère : tout le reste se situe par rapport à lui.</p>',null,null]]},
+ L3b:{t:'Les accords de 2 et de 3',s:[
+  ['Deux accords mineurs de plus','<p><strong>2 : Fa-La-Ré.</strong> Depuis l’accord de 4, un seul doigt bouge : Do monte à Ré.</p><p><strong>3 : Sol-Si-Mi.</strong> Depuis le 5, Ré monte à Mi. Depuis le 1, Do descend à Si.</p>',{m:CM(2)},['Écouter 4-2, 5-3','C','4-2-5-3']],
+  ['2-5-1','<p>Le 2 prépare, le 5 tend, le 1 pose.</p><p>C’est la fin de phrase la plus courante, dans les cantiques comme dans la louange.</p>',null,['Écouter 2-5-1','C','2-5-1']],
+  ['Et le 7 ?','<p>L’accord de 7 (Si-Ré-Fa) existe, mais on ne s’en sert presque jamais pour accompagner l’assemblée.</p><p>Retiens simplement qu’il existe. Ton terrain de jeu, c’est 1, 4, 5 et 6, puis 2 et 3.</p>',null,null]]},
+ L4:{t:'La structure des chants',s:[
+  ['Le couplet','<p>Il installe la tonalité : il <strong>part du 1</strong> et y revient.</p><p>Deux tournures typiques : 1-5-6-4 et 1-4-1-5. Quand il s’arrête sur le 5, il annonce le refrain.</p>',null,['Écouter 1-4-1-5','C','1-4-1-5']],
+  ['Le refrain','<p>Il doit s’ouvrir, s’élever. Souvent, il <strong>démarre sur le 4</strong>.</p><p>Exemple : 4-1-5-6, le refrain de 10 000 raisons.</p>',null,['Écouter 4-1-5-6','G','4-1-5-6']],
+  ['Le pont','<p>Il apporte du neuf. Il <strong>évite de se poser sur le 1</strong>, part souvent du 6 ou du 4, et finit en suspens sur le 5.</p><p>Le retour du refrain vient alors comme une réponse.</p>',null,['Écouter 6-4-1-5','C','6-4-1-5-1']]]},
+ L5:{t:'Les substitutions',s:[
+  ['Des accords voisins','<p>Le 4 (Fa-La-Do) et le 2 (Ré-Fa-La) ont <strong>deux notes en commun</strong> : Fa et La.</p><p>On peut donc jouer l’un à la place de l’autre : la mélodie tient toujours, seule la couleur change.</p>',{m:[53,57]},['Écouter 4 puis 2','C','4-2']],
+  ['Premier temps : la main gauche seule','<p>La main droite garde l’accord de 4. La main gauche joue le 2.</p><p>C’est la façon la plus simple de substituer, et ça sonne déjà très bien : tu entends un 2 avec septième.</p>',{m:CM(4)},['Écouter 4, puis 4 sur basse 2','C','4-4/2']],
+  ['Deuxième temps : les deux mains','<p>La main droite passe elle aussi à l’accord de 2 : Fa-La-Ré. Un seul doigt bouge.</p><p>C’est ce qu’on entend dans le couplet de Lumière du monde : 1-5-2 au lieu de 1-5-4.</p>',{m:CM(2)},['Écouter 1-5-4, puis 1-5-2','C','1-5-4-1-5-2']],
+  ['Les quatre échanges','<p><strong>2 pour 4</strong>, <strong>3 pour 5</strong>, <strong>3 pour 1</strong> et <strong>6 pour 1</strong>.</p><p>Un cas à part : basse sur le 3 sous l’accord de 1, c’est toujours l’accord de 1, posé sur sa tierce. Ce n’est pas une septième, mais ça fait avancer la basse.</p><p>On travaille tout ça en Do, Sol et Fa.</p>',null,['Écouter 1, 1 sur basse 3, 4','C','1-1/3-4']]]},
+ L6:{t:'Les accords de septième',s:[
+  ['Tu en jouais déjà','<p>Basse sur le 2, main droite sur l’accord de 4 : Ré + Fa-La-Do. Quatre notes, une note sur deux : c’est le <strong>2 avec septième</strong>.</p><p>La recette : la main droite joue l’accord situé une tierce au-dessus de la basse.</p>',{m:CM(4)},['Écouter 2, puis 2 avec septième','C','2-4/2']],
+  ['Le 5 avec septième','<p>On ajoute Fa à Sol-Si-Ré. Ce Fa veut descendre vers Mi : le 5 avec septième <strong>appelle le 1</strong> encore plus fort.</p><p>On l’entend à la fin de presque tous les cantiques.</p>',{m:[65,67,71,74].map(x=>x-12)},['Écouter 5, 5 avec septième, 1','C','5-5x-1']],
+  ['Le 1 et le 4','<p>Même recette : basse sur le 1, accord de 3 à la main droite. Basse sur le 4, accord de 6.</p><p>Leur couleur est douce, un peu rêveuse. À utiliser avec goût, dans les moments calmes.</p>',{m:CM(3)},['Écouter','C','1-3/1-4-6/4']]]}
+};
+const LESSON_ORDER=['L1','L2','L2b','L3','L3b','L4','L5','L6'];
+
+const CHEERS=['Trois questions aujourd’hui, et ta main s’en souviendra dimanche.','Beau travail. Un peu chaque jour, c’est comme ça que ça rentre.','C’est fait pour aujourd’hui. Ton oreille progresse sans que tu t’en rendes compte.',
+ 'Bravo. Ce que tu viens de revoir, tu le retrouveras dans le prochain chant.','Session terminée. La régularité compte plus que la durée.','Bien joué. Chaque degré appris est un chant de plus à ta portée.',
+ 'Merci d’avoir pris ce temps. L’assemblée en profitera.','Encore un pas. Les degrés deviennent peu à peu une seconde nature.','C’est noté. Va poser tes mains sur un vrai clavier si tu as deux minutes.',
+ 'Tu avances bien. Ce qui demandait un effort hier devient un réflexe.','Bonne session. Accompagner, c’est d’abord écouter : tu t’y entraînes.','Voilà qui est fait. À demain pour la suite.'];
+const RETRY=['Pas encore, et c’est normal : cette notion demande un peu de temps.','Tu y es presque. Les questions ratées reviendront demain, tranquillement.','Ce palier résiste un peu. Relis la leçon si tu veux, puis réessaie.'];
+
+// Modèle sonore d’un défi ou d’une leçon
+function modelSeq(k,m){if(!k||!m)return null;
+  if(m==='scale')return [...scaleSeq(k),...scaleSeq(k).reverse().slice(1)];
+  if(m.startsWith('notes:'))return m.slice(6).split('-').map(d=>({n:[KEYS[k].t+NAT[d-1]],d:.6}));
+  if(m.startsWith('bass:'))return progToks(k,m.slice(5)).map(t=>({n:[],b:t.b,d:.8}));
+  return progSeq(k,m)}
+
+/* ---------- 5. SON ---------- */
+const SAMP={39:'Ds2',42:'Fs2',45:'A2',48:'C3',51:'Ds3',54:'Fs3',57:'A3',60:'C4',63:'Ds4',66:'Fs4',69:'A4',72:'C5',75:'Ds5',78:'Fs5'};
+const SAMP_URLS=['https://tonejs.github.io/audio/salamander/','https://cdn.jsdelivr.net/gh/Tonejs/audio@master/salamander/','https://raw.githubusercontent.com/Tonejs/audio/master/salamander/'];
+const A={ctx:null,out:null,bus:null,tap:null,raw:{},buf:{},loaded:0};
+function idb(mode,fn){return new Promise(res=>{try{const r=indexedDB.open('pivot',1);
+  r.onupgradeneeded=()=>r.result.createObjectStore('snd');r.onerror=()=>res(null);
+  r.onsuccess=()=>{try{const tx=r.result.transaction('snd',mode),q=fn(tx.objectStore('snd'));tx.oncomplete=()=>res(q?q.result:true);tx.onerror=()=>res(null)}catch(e){res(null)}}}catch(e){res(null)}})}
+async function loadSamples(){
+  await Promise.all(Object.keys(SAMP).map(async m=>{
+    let ab=await idb('readonly',s=>s.get(SAMP[m]));
+    if(!ab)for(const u of SAMP_URLS){try{const r=await fetch(u+SAMP[m]+'.mp3');if(r.ok){ab=await r.arrayBuffer();break}}catch(e){}}
+    if(!ab)return;A.raw[m]=ab;A.loaded++;if(S.set.offline)idb('readwrite',s=>s.put(ab,SAMP[m]));decode(m)}));
+  refreshOffline()}
+function decode(m){if(!A.ctx||A.buf[m]||!A.raw[m])return;try{A.ctx.decodeAudioData(A.raw[m].slice(0),b=>{A.buf[m]=b},()=>{})}catch(e){}}
+async function setOffline(on){S.set.offline=on;save();
+  if(on){for(const m in A.raw)await idb('readwrite',s=>s.put(A.raw[m],SAMP[m]));if(A.loaded<14)loadSamples()}
+  else await idb('readwrite',s=>s.clear());refreshOffline()}
+function refreshOffline(){const e=document.getElementById('offstate');if(!e)return;
+  e.textContent=!S.set.offline?'Le son du piano est téléchargé à chaque ouverture.':A.loaded>=14?'Son du piano enregistré sur cet appareil.':A.loaded?`Enregistrement en cours (${A.loaded}/14).`:'Connecte-toi une fois à Internet pour enregistrer le son.'}
+function ac(){
+  if(!A.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;A.ctx=new C();
+    const comp=A.ctx.createDynamicsCompressor();comp.connect(A.ctx.destination);A.out=A.ctx.createGain();A.out.gain.value=.85;A.out.connect(comp);
+    A.tap=A.ctx.createGain();A.tap.connect(A.out);
+    try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+    for(const m in A.raw)decode(m)}
+  if(A.ctx.state!=='running')A.ctx.resume().catch(()=>{});
+  return A.ctx}
+function note(m,t,dur,vel,dest){const ctx=A.ctx,g=ctx.createGain();g.connect(dest);
+  let near=null;for(const k in A.buf)if(near===null||Math.abs(k-m)<Math.abs(near-m))near=+k;
+  if(near!==null&&Math.abs(near-m)<=5){const s=ctx.createBufferSource();s.buffer=A.buf[near];s.playbackRate.value=Math.pow(2,(m-near)/12);
+    g.gain.setValueAtTime(vel,t);g.gain.setValueAtTime(vel,t+dur);g.gain.exponentialRampToValueAtTime(.001,t+dur+.7);s.connect(g);s.start(t);s.stop(t+dur+.8)}
+  else{ // son de secours tant que les samples ne sont pas chargés
+    const f=440*Math.pow(2,(m-69)/12),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=Math.min(6000,f*6);lp.connect(g);
+    [[1,1],[2,.38],[3,.16],[4,.07]].forEach(([h,a])=>{const o=ctx.createOscillator(),og=ctx.createGain();o.frequency.value=f*h;og.gain.value=a;o.connect(og);og.connect(lp);o.start(t);o.stop(t+dur+1.2)});
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vel*.42,t+.008);g.gain.exponentialRampToValueAtTime(vel*.12,t+.55);g.gain.exponentialRampToValueAtTime(.0008,t+dur+1.1)}}
+function tapNote(m){if(!ac())return;note(m,A.ctx.currentTime,.7,.8,A.tap)}
+function stopSeq(){if(A.bus){const b=A.bus,t=A.ctx.currentTime;b.gain.cancelScheduledValues(t);b.gain.setValueAtTime(b.gain.value,t);b.gain.linearRampToValueAtTime(0,t+.08);setTimeout(()=>{try{b.disconnect()}catch(e){}},200);A.bus=null}}
+function playSeq(seq){if(!seq||!ac())return 0;stopSeq();const ctx=A.ctx,bus=A.bus=ctx.createGain();bus.connect(A.out);
+  let t=ctx.currentTime+.07;const arp=S.set.arp;
+  for(const e of seq){if(e.rest){t+=e.rest;continue}
+    const chord=e.n.length>1||e.b!=null,dur=e.d||(chord?(arp?1.25:.95):.55);
+    if(e.b!=null)note(e.b,t,dur,.7,bus);
+    e.n.forEach((m,i)=>note(m,t+(arp&&chord?.15*(i+(e.b!=null?1:0)):0),dur,chord?.62:.8,bus));
+    t+=dur}
+  return t-ctx.currentTime}
+
+/* ---------- 6. SAUVEGARDE ---------- */
+const STORE='pivot.v1';
+const fresh=()=>({v:1,p:{},les:{},rev:[],days:[],ios:0,set:{defiStar:false,arp:false,theme:'auto',offline:false}});
+let S=fresh(),memOnly=false;
+function load(){try{const r=localStorage.getItem(STORE);if(r)S=merge(JSON.parse(r))}catch(e){memOnly=true}}
+function merge(o){const f=fresh();if(!o||o.v!==1)throw 0;return {...f,...o,set:{...f.set,...(o.set||{})}}}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){memOnly=true}}
+const exportCode=()=>'PIVOT1-'+btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+function importCode(c){c=c.trim().replace(/\s+/g,'');if(!c.startsWith('PIVOT1-'))throw 0;S=merge(JSON.parse(decodeURIComponent(escape(atob(c.slice(7))))));save()}
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>iso(new Date());
+const inDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+function stars(id){const r=S.p[id];if(!r)return 0;let s=Math.min(3,r.b||0);if(S.set.defiStar&&!r.d)s=Math.min(s,2);return s}
+const unlocked=i=>i===0||stars(PALIERS[i-1].id)>=2;
+const currentIdx=()=>PALIERS.findIndex(p=>stars(p.id)<2);
+const lessonOpen=id=>{const i=PALIERS.findIndex(p=>p.les===id);return unlocked(i)};
+
+/* ---------- 7. INTERFACE ---------- */
+const app=document.getElementById('app'),sheetEl=document.getElementById('sheet');
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// tx : texte affiché, avec des traits d’union insécables dans les progressions (1-5-6-4)
+const tx=s=>esc(s).replace(/(\d)-(?=\d)/g,'$1\u2011');
+const IC={
+  gear:'<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0-1.2-2.8H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  x:'<svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  play:'<svg class="ic" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>',
+  lock:'<svg class="ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  book:'<svg class="ic" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21a2 2 0 0 1 2-2h13"/></svg>',
+  back:'<svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>'
+};
+const STAR='<path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6-5.9-3.2-5.9 3.2 1.2-6.6L2.5 9.5l6.6-.9z"/>';
+const starRow=(n,cls='stars')=>`<span class="${cls}" aria-label="${n} étoile${n>1?'s':''} sur 3">${[1,2,3].map(i=>`<svg viewBox="0 0 24 24" class="${i<=n?'on':''}">${STAR}</svg>`).join('')}</span>`;
+
+function applyTheme(){const t=S.set.theme;if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t)}
+
+/* Clavier d’une octave, cadré du 4e au 3e degré */
+function Kbd(k,o={}){
+  const lo0=degMidi(k,4),hi0=degMidi(k,3),white=m=>NAT.includes(m%12);
+  let lo=lo0,hi=hi0;if(!white(lo))lo--;if(!white(hi))hi++;
+  const W=[];for(let m=lo;m<=hi;m++)if(white(m))W.push(m);
+  const sel=new Set(o.pre||[]),lit=new Set(o.lit||[]),el=document.createElement('div');el.className='kbdwrap';
+  let h=`<div class="kbd${o.mini?' mini':''}">`;
+  const cls=m=>(m<lo0||m>hi0?' ctx':'')+((m-KEYS[k].t)%12===0?' tonic':'')+(sel.has(m)?' sel':'')+(lit.has(m)?' lit':'');
+  const lab=m=>o.deg&&m>=lo0&&m<=hi0?(()=>{for(let d=1;d<=7;d++)if(degMidi(k,d)===m)return `<b>${d}</b>`;return ''})():(lit.has(m)?`<b>${midiName(k,m)}</b>`:'');
+  W.forEach(m=>{h+=`<div class="wk${cls(m)}" data-m="${m}">${lab(m)}</div>`});
+  for(let m=lo;m<=hi;m++)if(!white(m)){const i=W.indexOf(m-1),w=100/W.length;h+=`<div class="bk${cls(m)}" data-m="${m}" style="left:calc(${(i+1)*w}% - ${w*.31}%);width:${w*.62}%">${lab(m)}</div>`}
+  el.innerHTML=h+'</div>'+(o.n?'<div class="kbdhint"></div>':'');
+  const hint=()=>{const e=$('.kbdhint',el);if(e)e.textContent=o.n===1?'Touche une note, puis valide.':`${sel.size} note${sel.size>1?'s':''} sur ${o.n}`};hint();
+  let locked=!o.n&&!o.free;
+  el.addEventListener('pointerdown',ev=>{const t=ev.target.closest('[data-m]');if(!t||t.classList.contains('ctx'))return;ev.preventDefault();const m=+t.dataset.m;
+    if(locked&&!o.free){tapNote(m);return}
+    tapNote(m);if(!o.n)return;
+    if(o.n===1){sel.clear();sel.add(m)}else if(sel.has(m))sel.delete(m);else if(sel.size<o.n)sel.add(m);
+    el.querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('sel',sel.has(+x.dataset.m)));hint();o.onChange&&o.onChange([...sel])});
+  return {el,get:()=>[...sel].sort((a,b)=>a-b),
+    mark(ans){locked=true;el.querySelectorAll('[data-m]').forEach(x=>{const m=+x.dataset.m;x.classList.remove('sel');
+      if(ans.includes(m)){x.classList.add('ok');x.innerHTML=`<b>${midiName(k,m)}</b>`}else if(sel.has(m))x.classList.add('bad')});const e=$('.kbdhint',el);if(e)e.textContent=''}}}
+
+/* Feuille modale */
+function sheet(html){sheetEl.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;sheetEl.classList.add('on')}
+function closeSheet(){sheetEl.classList.remove('on');sheetEl.innerHTML='';stopSeq()}
+sheetEl.addEventListener('click',e=>{if(e.target===sheetEl)closeSheet()});
+
+/* ----- Accueil : session du jour et chemin ----- */
+function home(){stopSeq();const cur=currentIdx(),done=S.days.includes(today()),p=cur>=0?PALIERS[cur]:null;
+  let h=`<header class="top"><div class="brand"><i></i>Pivot</div><button class="iconbtn" data-act="settings" aria-label="Paramètres">${IC.gear}</button></header>`;
+  h+=`<section class="daily">`+(p?(done
+      ?`<h1>Session du jour faite</h1><p>À demain. Ou continue si tu en as envie, sans pression.</p><button class="btn soft" data-act="play" data-i="${cur}">Continuer avec le palier ${p.id}</button>`
+      :`<h1>Ta session du jour</h1><p>3 questions. Palier ${p.id} : ${esc(p.t)}.</p><button class="btn" data-act="play" data-i="${cur}">Commencer</button>`)
+    :`<h1>Tu es au bout du chemin</h1><p>Tous les paliers sont validés. Rejoue ceux que tu veux pour entretenir tes réflexes.</p>`)
+    +(S.days.length?`<div class="days">${S.days.length} jour${S.days.length>1?'s':''} de pratique</div>`:'')+`</section>`;
+  const X=[0,52,78,52,0,-52,-78,-52];let n=0;
+  for(let c=1;c<=6;c++){h+=`<section class="chap"><h2>${c}. ${CHAPTERS[c][0]}</h2><p>${CHAPTERS[c][1]}</p></section><div class="path">`;
+    PALIERS.forEach((q,i)=>{if(q.ch!==c)return;const st=stars(q.id),open=unlocked(i),x=X[n++%8];
+      if(q.les)h+=`<button class="lessonpill${open?'':' locked'}" data-act="lesson" data-id="${q.les}" style="transform:translateX(${x}px)" ${open?'':'disabled'}>${open?IC.book:IC.lock}Leçon : ${LESSONS[q.les].t}</button>`;
+      h+=`<button class="node ${st>=2?'done':open?'open':''}${i===cur?' cur':''}" data-act="node" data-i="${i}" style="transform:translateX(${x}px)" aria-label="Palier ${q.id}, ${esc(q.t)}${open?'':', verrouillé'}">
+        <span class="disc">${open?q.id:IC.lock}</span>${starRow(st)}</button>`});
+    h+='</div>'}
+  app.innerHTML=h;drawTrails();
+  const c=$('.node.cur');if(c&&cur>2)c.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
+function drawTrails(){document.querySelectorAll('.path').forEach(p=>{const old=$('svg.trail',p);if(old)old.remove();const r=p.getBoundingClientRect();
+  const pts=[...p.querySelectorAll('.disc')].map(d=>{const b=d.getBoundingClientRect();return [b.left+b.width/2-r.left,b.top+b.height/2-r.top]});
+  if(pts.length<2)return;let d=`M${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i],my=(y0+y1)/2;d+=` C${x0} ${my} ${x1} ${my} ${x1} ${y1}`}
+  p.insertAdjacentHTML('afterbegin',`<svg class="trail" aria-hidden="true"><path d="${d}"/></svg>`)})}
+window.addEventListener('resize',()=>{if($('.path'))drawTrails()});
+
+function defiBlock(i){const p=PALIERS[i],r=S.p[p.id]||{},seq=modelSeq(p.defi[1],p.defi[2]);
+  return `<div class="defi"><h4>Défi au piano</h4><p>${tx(p.defi[0])}</p>
+    ${seq?`<button class="btn small ghost" data-act="model" data-i="${i}" style="margin-bottom:8px">${IC.play}Écouter le modèle</button>`:''}
+    <label class="check"><input type="checkbox" data-act="defidone" data-i="${i}" ${r.d?'checked':''}>Fait</label>
+    ${S.set.defiStar&&!r.d&&(r.b||0)>=3?'<p class="note" style="margin:6px 0 0">Coche « Fait » pour obtenir ta 3e étoile.</p>':''}</div>`}
+function nodeSheet(i){const p=PALIERS[i],st=stars(p.id);
+  if(!unlocked(i))return sheet(`<h3>Palier ${p.id} verrouillé</h3><p class="sub">${esc(p.t)}</p><p>Obtiens au moins 2 étoiles au palier ${PALIERS[i-1].id} pour le débloquer.</p><div class="stack" style="margin-top:18px"><button class="btn ghost" data-act="close">Fermer</button></div>`);
+  sheet(`<span class="chip">${p.k==='Toutes'?'Toutes les tonalités':p.k+' majeur'}</span><h3 style="margin-top:10px">${p.id}. ${esc(p.t)}</h3>
+    <div style="margin:4px 0 14px">${starRow(st)}</div>${S.p[p.id]&&st>=2?defiBlock(i):''}
+    <div class="stack"><button class="btn" data-act="play" data-i="${i}">${S.p[p.id]?'Rejouer ce palier':'Jouer ce palier'}</button>
+    ${p.les?`<button class="btn ghost" data-act="lesson" data-id="${p.les}">Revoir la leçon</button>`:''}</div>`)}
+
+/* ----- Leçon ----- */
+function lesson(id,then){closeSheet();const L=LESSONS[id];let i=0;
+  const draw=()=>{const [t,body,kb,ex]=L.s[i];stopSeq();
+    app.innerHTML=`<div class="shead"><button class="iconbtn" data-act="quit" aria-label="Fermer la leçon">${IC.x}</button><span class="lab">Leçon : ${L.t}</span>
+      <span class="dots">${L.s.map((_,j)=>`<i class="${j<i?'ok':j===i?'now':''}"></i>`).join('')}</span></div>
+      <div class="lesson"><h1>${t}</h1><div class="body">${body}</div><div id="lk"></div>
+      ${ex?`<button class="btn small soft listen" data-act="lplay">${IC.play}${ex[0]}</button>`:''}<div class="spacer"></div>
+      <div class="row">${i?`<button class="btn ghost" data-act="lprev">Précédent</button>`:''}<button class="btn" data-act="lnext">${i<L.s.length-1?'Suivant':then?'C’est parti':'Terminer'}</button></div></div>`;
+    if(kb)$('#lk').appendChild(Kbd('C',{mini:true,lit:kb.m||[],deg:kb.deg,free:true}).el);
+    window.scrollTo(0,0)};
+  UI.lplay=()=>{const ex=L.s[i][3];playSeq(modelSeq(ex[1],ex[2]))};
+  UI.lprev=()=>{i--;draw()};
+  UI.lnext=()=>{if(i<L.s.length-1){i++;draw()}else{S.les[id]=1;save();stopSeq();then?then():home()}};
+  draw()}
+
+/* ----- Session de questions ----- */
+let ses=null;
+function pick3(pool){pool=shuffle(pool);const out=[],seen=new Set(),ids=new Set();
+  for(const pass of [0,1])for(const s of pool){const id=JSON.stringify(s);if(out.length>=3||ids.has(id))continue;if(pass===0&&seen.has(s[0]))continue;out.push(s);seen.add(s[0]);ids.add(id)}
+  return out}
+function startPalier(i){closeSheet();ac();const p=PALIERS[i];
+  if(p.les&&!S.les[p.les])return lesson(p.les,()=>startPalier(i));
+  const due=S.rev.filter(r=>r.d<=today()).slice(0,2);
+  ses={i,k:0,ok:0,qs:[...due.map(r=>({spec:r.s,rev:true})),...pick3(p.pool()).map(s=>({spec:s}))]};
+  showQ()}
+function showQ(){stopSeq();const item=ses.qs[ses.k],q=item.q=build(item.spec),p=PALIERS[ses.i];let kb=null,choice=null;
+  app.innerHTML=`<div class="shead"><button class="iconbtn" data-act="quit" aria-label="Quitter la session">${IC.x}</button>
+    <span class="lab">${item.rev?'Révision d’un autre jour':'Palier '+p.id}</span>
+    <span class="dots">${ses.qs.map((x,j)=>`<i class="${x.rev?'rev ':''}${j<ses.k?(x.good?'ok':'ko'):j===ses.k?'now':''}"></i>`).join('')}</span></div>
+    <div class="q">${q.key?`<span class="chip" style="align-self:flex-start">${KN(q.key)}</span>`:''}<p class="prompt">${tx(q.prompt)}</p>
+    ${q.listen?`<button class="btn small soft listen" data-act="qlisten">${IC.play}Réécouter</button>`:''}
+    <div id="kb"></div><div id="ans"></div><div class="spacer"></div><div id="foot"><button class="btn" id="go" data-act="check" disabled>Valider</button></div></div>`;
+  const go=$('#go');
+  if(q.kind==='kb'){kb=Kbd(q.key,{n:q.kb.n,pre:q.kb.pre,onChange:s=>{go.disabled=s.length!==q.kb.n}});$('#kb').appendChild(kb.el)}
+  else{if(q.kbShow)$('#kb').appendChild(Kbd(q.key,{mini:true,lit:q.kbShow}).el);
+    const opts=q.kind==='deg'?q.degs.map(d=>[d,d]):q.choices.map((c,j)=>[j,c]);
+    $('#ans').innerHTML=`<div class="${q.kind==='deg'?'degs':'choices'}">${opts.map(([v,l])=>`<button class="choice" data-act="choose" data-v="${v}">${tx(l)}</button>`).join('')}</div>`}
+  UI.choose=el=>{if(item.done)return;choice=+el.dataset.v;document.querySelectorAll('.choice').forEach(c=>c.classList.toggle('sel',c===el));go.disabled=false};
+  UI.qlisten=()=>playSeq(q.listen);
+  UI.check=()=>{if(item.done)return;item.done=true;let good;
+    if(q.kind==='kb'){const g=kb.get();good=g.length===q.kb.ans.length&&g.every(m=>q.kb.ans.includes(m));kb.mark(q.kb.ans)}
+    else{const right=q.kind==='deg'?q.ansDeg:[q.ans];good=right.includes(choice);
+      document.querySelectorAll('.choice').forEach(c=>{const v=+c.dataset.v;c.classList.remove('sel');if(right.includes(v))c.classList.add('ok');else if(v===choice)c.classList.add('bad');c.disabled=true})}
+    item.good=good;const id=JSON.stringify(item.spec),at=S.rev.findIndex(r=>JSON.stringify(r.s)===id);
+    if(item.rev){if(at>=0){if(good){if(S.rev[at].b)S.rev.splice(at,1);else{S.rev[at].b=1;S.rev[at].d=inDays(3)}}else{S.rev[at].b=0;S.rev[at].d=inDays(1)}}}
+    else{if(good)ses.ok++;else if(at<0)S.rev.push({s:item.spec,d:inDays(1),b:0})}
+    save();
+    const last=ses.k===ses.qs.length-1,ok=['Juste.','Exactement.','C’est ça.','Oui, bien vu.'][rnd(4)];
+    $('#foot').innerHTML=`<div class="fb${good?'':' ko'}" role="status"><h4>${good?ok:'Pas tout à fait.'}</h4><p>${tx(q.explain)}</p>${q.song?`<p class="song">${tx(q.song)}</p>`:''}
+      ${good?'':'<p class="note">Cette question reviendra dans une prochaine session.</p>'}
+      <div class="row">${q.answerSeq?`<button class="btn ghost" data-act="replay">${IC.play}Écouter</button>`:''}<button class="btn" data-act="next">${last?'Terminer':'Continuer'}</button></div></div>`;
+    $('#foot').scrollIntoView({block:'end',behavior:'smooth'});
+    if(!good&&q.answerSeq)playSeq(q.answerSeq)};
+  UI.replay=()=>playSeq(q.answerSeq);
+  UI.next=()=>{ses.k++;ses.k<ses.qs.length?showQ():finish()};
+  window.scrollTo(0,0);
+  if(q.listen)setTimeout(()=>{if(ses&&ses.qs[ses.k]===item&&!item.done)playSeq(q.listen)},450)}
+function finish(){stopSeq();const i=ses.i,p=PALIERS[i],r=S.p[p.id]||(S.p[p.id]={b:0,d:false}),was=stars(p.id);
+  r.b=Math.max(r.b,ses.ok);if(!S.days.includes(today()))S.days.push(today());save();
+  const got=S.set.defiStar&&!r.d?Math.min(ses.ok,2):ses.ok,pass=ses.ok>=2,next=i+1<PALIERS.length?i+1:-1;
+  app.innerHTML=`<div class="result">${starRow(got,'bigstars')}
+    <h1>${pass?(was>=2?'Palier rejoué':`Palier ${p.id} validé`):`${ses.ok} bonne${ses.ok>1?'s':''} réponse${ses.ok>1?'s':''} sur 3`}</h1>
+    <p class="cheer">${pass?CHEERS[rnd(CHEERS.length)]:RETRY[rnd(RETRY.length)]}</p>
+    ${pass?defiBlock(i):'<p class="note">Il faut 2 étoiles pour débloquer le palier suivant.</p>'}
+    <div class="stack">${pass?'<button class="btn" data-act="home">Terminer pour aujourd’hui</button>'+(next>=0?`<button class="btn ghost" data-act="play" data-i="${next}">Continuer avec le palier ${PALIERS[next].id}</button>`:'')
+      :`<button class="btn" data-act="play" data-i="${i}">Réessayer</button>${p.les?`<button class="btn ghost" data-act="lesson" data-id="${p.les}">Revoir la leçon</button>`:''}<button class="btn ghost" data-act="home">Revenir au chemin</button>`}</div></div>`;
+  ses=null;window.scrollTo(0,0)}
+
+/* ----- Paramètres ----- */
+function settings(){const seg=(name,opts,v)=>`<span class="seg">${opts.map(([k,l])=>`<button class="${k===v?'on':''}" data-act="seg" data-n="${name}" data-v="${k}">${l}</button>`).join('')}</span>`;
+  sheet(`<h3>Paramètres</h3>
+  <label class="set" style="border-top:0"><span>Le défi au piano compte pour la 3e étoile<small>Sinon, le défi reste facultatif.</small></span><input class="switch" type="checkbox" data-act="tog" data-n="defiStar" ${S.set.defiStar?'checked':''}></label>
+  <div class="set"><span>Lecture des accords</span>${seg('arp',[['0','Plaqués'],['1','Arpégés']],S.set.arp?'1':'0')}</div>
+  <div class="set"><span>Apparence</span>${seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.set.theme)}</div>
+  <label class="set"><span>Garder le son hors ligne<small id="offstate"></small></span><input class="switch" type="checkbox" data-act="tog" data-n="offline" ${S.set.offline?'checked':''}></label>
+  <div class="set" style="display:block"><span>Ma progression<small>Pour changer d’appareil ou après une réinstallation : exporte un code ici, puis importe-le là-bas.</small></span>
+    <div class="row" style="margin-top:12px"><button class="btn small ghost" data-act="export">Exporter ma progression</button><button class="btn small ghost" data-act="import">Importer</button></div><div id="xio"></div></div>
+  <div class="set" style="display:block"><span>Revoir les leçons</span><div class="list" style="margin-top:8px">${LESSON_ORDER.map(id=>`<button data-act="lesson" data-id="${id}" ${lessonOpen(id)?'':'disabled'}>${LESSONS[id].t}${lessonOpen(id)?'':IC.lock}</button>`).join('')}</div></div>
+  ${memOnly?'<p class="note">Ce navigateur bloque l’enregistrement : ta progression sera perdue à la fermeture. Exporte-la pour la garder.</p>':''}
+  <div class="stack" style="margin-top:16px"><button class="btn" data-act="close">Fermer</button><button class="btn ghost small" data-act="reset" style="width:100%;color:var(--bad)">Effacer ma progression</button></div>`);
+  refreshOffline()}
+function iosHelp(){sheet(`<h3>Ajoute Pivot à ton écran d’accueil</h3><p class="sub">Tu l’ouvriras comme une appli, et ta progression sera à l’abri : Safari peut effacer les données des sites qui ne sont pas installés.</p>
+  <ol class="steps"><li>Touche le bouton <strong>Partager</strong> de Safari (le carré avec une flèche vers le haut).</li><li>Choisis <strong>Sur l’écran d’accueil</strong>.</li><li>Touche <strong>Ajouter</strong>, puis ouvre Pivot depuis sa nouvelle icône.</li></ol>
+  <p class="note">Si tu n’entends rien, vérifie le volume et le bouton silencieux de l’iPhone.</p>
+  <div class="stack" style="margin-top:16px"><button class="btn" data-act="close">J’ai compris</button></div>`)}
+
+/* ----- Actions ----- */
+const UI={
+  settings,close:closeSheet,home:()=>{closeSheet();home()},
+  quit:()=>{ses=null;home()},
+  node:el=>nodeSheet(+el.dataset.i),
+  play:el=>startPalier(+el.dataset.i),
+  lesson:el=>lesson(el.dataset.id,null),
+  model:el=>{const p=PALIERS[+el.dataset.i];playSeq(modelSeq(p.defi[1],p.defi[2]))},
+  defidone:el=>{const p=PALIERS[+el.dataset.i],r=S.p[p.id]||(S.p[p.id]={b:0,d:false});r.d=el.checked;save();
+    const bs=$('.bigstars');if(bs)bs.outerHTML=starRow(stars(p.id),'bigstars')},
+  tog:el=>{if(el.dataset.n==='offline')setOffline(el.checked);else{S.set[el.dataset.n]=el.checked;save()}},
+  seg:el=>{const n=el.dataset.n,v=el.dataset.v;S.set[n]=n==='arp'?v==='1':v;save();applyTheme();
+    el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));if(n==='arp')playSeq(progSeq('C','1-4-5-1'))},
+  export:()=>{$('#xio').innerHTML=`<textarea readonly aria-label="Code de progression" style="margin-top:12px">${exportCode()}</textarea><button class="btn small soft" data-act="copy" style="margin-top:8px;width:100%">Copier le code</button>`},
+  copy:async el=>{const t=$('#xio textarea');try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();try{document.execCommand('copy')}catch(_){}}el.textContent='Code copié'},
+  import:()=>{$('#xio').innerHTML=`<textarea aria-label="Colle ton code ici" placeholder="Colle ton code ici (il commence par PIVOT1-)" style="margin-top:12px"></textarea><button class="btn small soft" data-act="doimport" style="margin-top:8px;width:100%">Remplacer ma progression par ce code</button><p class="note" id="xmsg"></p>`},
+  doimport:()=>{try{importCode($('#xio textarea').value);applyTheme();closeSheet();home()}catch(e){$('#xmsg').textContent='Ce code n’est pas reconnu. Vérifie qu’il est complet et qu’il commence par PIVOT1-.'}},
+  reset:el=>{if(el.dataset.sure){const set=S.set;S=fresh();S.set=set;S.ios=1;save();closeSheet();home()}else{el.dataset.sure=1;el.textContent='Touche encore pour tout effacer'}}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el||el.disabled)return;if(el.tagName==='INPUT'&&el.type==='checkbox')return;ac();const f=UI[el.dataset.act];f&&f(el)});
+document.addEventListener('change',e=>{const el=e.target.closest('input[data-act]');if(el){const f=UI[el.dataset.act];f&&f(el)}});
+
+/* ----- Démarrage ----- */
+(function icon(){try{const c=document.createElement('canvas');c.width=c.height=180;const x=c.getContext('2d');
+  x.fillStyle='#1F6B57';x.fillRect(0,0,180,180);x.fillStyle='#FDFDFB';[34,74,114].forEach(l=>{x.beginPath();x.roundRect(l,30,32,120,[0,0,8,8]);x.fill()});
+  x.fillStyle='#12171c';[60,100].forEach(l=>{x.beginPath();x.roundRect(l,30,20,70,[0,0,5,5]);x.fill()});
+  x.fillStyle='#c2902c';x.beginPath();x.arc(90,128,9,0,7);x.fill();
+  const u=c.toDataURL('image/png');for(const rel of ['apple-touch-icon','icon']){const l=document.createElement('link');l.rel=rel;l.href=u;document.head.appendChild(l)}}catch(e){}})();
+load();applyTheme();home();loadSamples();
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+(function(){const ua=navigator.userAgent,ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
+  alone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  if(ios&&!alone&&!S.ios){S.ios=1;save();iosHelp()}})();
+
+</script>
+</body>
+</html>
